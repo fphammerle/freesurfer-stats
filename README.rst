@@ -35,19 +35,10 @@ Usage
     (1670487.274486, 'mm^3')
     >>> stats.whole_brain_measurements['White Surface Total Area']
     (98553.0, 'mm^2')
-    >>> stats.structure_measurements['postcentral']
-    {'Structure Name': 'postcentral',
-     'Number of Vertices': 8102,
-     'Surface Area': 5258.0,
-     'Gray Matter Volume': 12037.0,
-     'Average Thickness': 2.109,
-     'Thickness StdDev': 0.568,
-     ...}
-    >>> stats.structure_measurement_units
-    {'Structure Name': None,
-     'Number of Vertices': None,
-     'Surface Area': 'mm^2',
-     'Gray Matter Volume': 'mm^3',
-     'Average Thickness': 'mm',
-     'Thickness StdDev': 'mm',
-     ...}
+    >>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)', 'Gray Matter Volume (mm^3)']].head()
+                Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
+    0  caudalanteriorcingulate                 1472                       4258
+    1      caudalmiddlefrontal                 3039                       8239
+    2                   cuneus                 2597                       6722
+    3               entorhinal                  499                       2379
+    4                 fusiform                 3079                       9064

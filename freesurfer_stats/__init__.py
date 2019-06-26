@@ -18,22 +18,13 @@ https://surfer.nmr.mgh.harvard.edu/
 (1670487.274486, 'mm^3')
 >>> stats.whole_brain_measurements['White Surface Total Area']
 (98553.0, 'mm^2')
->>> stats.structure_measurements['postcentral']
-{'Structure Name': 'postcentral',
- 'Number of Vertices': 8102,
- 'Surface Area': 5258.0,
- 'Gray Matter Volume': 12037.0,
- 'Average Thickness': 2.109,
- 'Thickness StdDev': 0.568,
- ...}
->>> stats.structure_measurement_units
-{'Structure Name': None,
- 'Number of Vertices': None,
- 'Surface Area': 'mm^2',
- 'Gray Matter Volume': 'mm^3',
- 'Average Thickness': 'mm',
- 'Thickness StdDev': 'mm',
- ...}
+>>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)', 'Gray Matter Volume (mm^3)']].head()
+            Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
+0  caudalanteriorcingulate                 1472                       4258
+1      caudalmiddlefrontal                 3039                       8239
+2                   cuneus                 2597                       6722
+3               entorhinal                  499                       2379
+4                 fusiform                 3079                       9064
 """
 
 import datetime
@@ -57,9 +48,7 @@ class CorticalParcellationStats:
         self.whole_brain_measurements \
             = {}  # type: typing.Dict[str, typing.Tuple[float, int]]
         self.structure_measurements \
-            = {}  # type: typing.Dict[str, typing.Dict[str, typing.Union[str, int, float]]]
-        self.structure_measurement_units \
-            = {}  # type: typing.Dict[str, typing.Union[str, None]]
+            = {}  # type: typing.Union[pandas.DataFrame, None]
 
     @property
     def hemisphere(self) -> str:
@@ -103,10 +92,12 @@ class CorticalParcellationStats:
                 self.headers[attr_name] = attr_value
 
     @staticmethod
-    def _filter_unit(unit: str) -> typing.Union[str, None]:
+    def _format_column_name(column_attrs: typing.Dict[str, str]) -> str:
+        name = column_attrs['FieldName']
+        unit = column_attrs['Units']
         if unit in ['unitless', 'NA']:
-            return None
-        return unit
+            return name
+        return '{} ({})'.format(name, unit)
 
     @classmethod
     def _read_column_attributes(cls, num: int, stream: typing.TextIO) \
@@ -143,23 +134,10 @@ class CorticalParcellationStats:
             int(line[len('NTableCols '):]), stream)
         assert self._read_header_line(stream) \
             == 'ColHeaders ' + ' '.join(c['ColHeader'] for c in columns)
-        assert columns[0]['ColHeader'] == 'StructName'
-        column_names = [c['FieldName'] for c in columns]
-        self.structure_measurements = {}
-        for line in stream:
-            values = line.rstrip().split()
-            assert len(values) == len(column_names)
-            struct_name = values[0]
-            assert struct_name not in self.structure_measurements
-            for column_index, column_attrs in enumerate(columns):
-                if column_attrs['ColHeader'] in ['NumVert', 'FoldInd']:
-                    values[column_index] = int(values[column_index])
-                elif column_attrs['ColHeader'] != 'StructName':
-                    values[column_index] = float(values[column_index])
-            self.structure_measurements[struct_name] \
-                = dict(zip(column_names, values))
-        self.structure_measurement_units = {
-            c['FieldName']: self._filter_unit(c['Units']) for c in columns}
+        self.structure_measurements = pandas.DataFrame(
+            (line.rstrip().split() for line in stream),
+            columns=list(map(self._format_column_name, columns))) \
+            .apply(pandas.to_numeric, errors='ignore')
 
     @classmethod
     def read(cls, path: str) -> 'CorticalParcellationStats':
