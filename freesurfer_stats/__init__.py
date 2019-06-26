@@ -25,6 +25,8 @@ from freesurfer_stats.version import __version__
 
 class CorticalParcellationStats:
 
+    _HEMISPHERE_PREFIX_TO_SIDE = {'lh': 'left', 'rh': 'right'}
+
     def __init__(self):
         self.creation_time = None  # type: typing.Optional[datetime.datetime]
         self.generating_program = None  # type: typing.Optional[str]
@@ -35,6 +37,13 @@ class CorticalParcellationStats:
         self.hostname = None  # type: typing.Optional[str]
         self.machine = None  # type: typing.Optional[str]
         self.user = None  # type: typing.Optional[str]
+        self.subjects_dir = None  # type: typing.Optional[str]
+        self.anatomy_type = None  # type: typing.Optional[str]
+        self.subject_name = None  # type: typing.Optional[str]
+        self.hemisphere = None  # type: typing.Optional[str]
+        self.annotation_file = None  # type: typing.Optional[str]
+        self.annotation_file_timestamp \
+            = None  # type: typing.Optional[datetime.datetime]
 
     def _read_headers(self, stream: typing.TextIO) -> None:
         creation_time_str = stream.readline()[len('# CreationTime '):].rstrip()
@@ -47,6 +56,8 @@ class CorticalParcellationStats:
         while True:
             line = stream.readline().rstrip()
             if line == '#':
+                continue
+            elif line.startswith('# Measure'):
                 break
             prefix, attr_name, attr_value = line.split(' ', maxsplit=2)
             assert prefix == '#'
@@ -67,6 +78,19 @@ class CorticalParcellationStats:
                 self.machine = attr_value
             elif attr_name == 'user':
                 self.user = attr_value
+            elif attr_name == 'SUBJECTS_DIR':
+                self.subjects_dir = attr_value
+            elif attr_name == 'anatomy_type':
+                self.anatomy_type = attr_value
+            elif attr_name == 'subjectname':
+                self.subject_name = attr_value
+            elif attr_name == 'hemi':
+                self.hemisphere = self._HEMISPHERE_PREFIX_TO_SIDE[attr_value]
+            elif attr_name == 'AnnotationFile':
+                self.annotation_file = attr_value
+            elif attr_name == 'AnnotationFileTimeStamp':
+                self.annotation_file_timestamp = datetime.datetime.strptime(
+                    attr_value, '%Y/%m/%d %H:%M:%S')
             else:
                 raise ValueError(attr_name)
 

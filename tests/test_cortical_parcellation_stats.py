@@ -21,6 +21,13 @@ def test_read_dktatlas():
     assert stats.hostname == 'another-hostname'
     assert stats.machine == 'x86_64'
     assert stats.user == 'some-username'
+    assert stats.subjects_dir == '/home/some-username/freesurfer-subjects'
+    assert stats.anatomy_type == 'surface'
+    assert stats.subject_name == 'fabian'
+    assert stats.hemisphere == 'left'
+    assert stats.annotation_file == '../label/lh.aparc.DKTatlas.annot'
+    assert stats.annotation_file_timestamp \
+        == datetime.datetime(2019, 5, 9, 23, 5, 40)
 
 
 def test_read_pial():
@@ -39,3 +46,10 @@ def test_read_pial():
     assert stats.hostname == 'some-hostname'
     assert stats.machine == 'x86_64'
     assert stats.user == 'some-username'
+    assert stats.subjects_dir == '/home/some-username/freesurfer-subjects'
+    assert stats.anatomy_type == 'surface'
+    assert stats.subject_name == 'fabian'
+    assert stats.hemisphere == 'right'
+    assert stats.annotation_file == '../label/rh.aparc.annot'
+    assert stats.annotation_file_timestamp \
+        == datetime.datetime(2019, 5, 9, 22, 27, 28)
