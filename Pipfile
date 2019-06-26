@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+freesurfer-stats = {editable = true, path = "."}
 
 [dev-packages]
 isort = "*"
