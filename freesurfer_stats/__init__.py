@@ -14,7 +14,10 @@ https://surfer.nmr.mgh.harvard.edu/
 >>> stats.headers['cmdline'][:64]
 'mris_anatomical_stats -th3 -mgz -cortex ../label/lh.cortex.label'
 >>> stats.hemisphere
-'left'
+>>> stats.general_measurements['Estimated Total Intracranial Volume']
+(1670487.274486, 'mm^3')
+>>> stats.general_measurements['White Surface Total Area']
+(98553.0, 'mm^2')
 """
 
 import datetime
@@ -29,24 +32,33 @@ from freesurfer_stats.version import __version__
 class CorticalParcellationStats:
 
     _HEMISPHERE_PREFIX_TO_SIDE = {'lh': 'left', 'rh': 'right'}
+    _GENERAL_MEASUREMENTS_REGEX = re.compile(
+        r'^Measure \S+, ([^,\s]+),? ([^,]+), ([\d\.]+), (\S+)$')
 
     def __init__(self):
-        # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
-        self.headers = {}
+        self.headers \
+            = {}  # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
+        self.general_measurements \
+            = {}  # type: typing.Dict[str, typing.Tuple[float, int]]
 
     @property
     def hemisphere(self) -> str:
         return self._HEMISPHERE_PREFIX_TO_SIDE[self.headers['hemi']]
 
+    @staticmethod
+    def _read_header_line(stream: typing.TextIO) -> None:
+        line = stream.readline()
+        assert line.startswith('# ')
+        return line[2:].rstrip()
+
     def _read_headers(self, stream: typing.TextIO) -> None:
         self.headers = {}
         while True:
-            line = stream.readline().rstrip()
-            if line.startswith('# Measure'):
+            line = self._read_header_line(stream)
+            if line.startswith('Measure'):
                 break
-            elif line != '#':
-                prefix, attr_name, attr_value = line.split(' ', maxsplit=2)
-                assert prefix == '#'
+            elif line:
+                attr_name, attr_value = line.split(' ', maxsplit=1)
                 attr_value = attr_value.lstrip()
                 if attr_name in ['cvs_version', 'mrisurf.c-cvs_version']:
                     attr_value = attr_value.strip('$').rstrip()
@@ -67,6 +79,17 @@ class CorticalParcellationStats:
             == '# Table of FreeSurfer cortical parcellation anatomical statistics'
         assert stream.readline().rstrip() == '#'
         self._read_headers(stream)
+        self.general_measurements = {}
+        line = self._read_header_line(stream)
+        while not line.startswith('NTableCols'):
+            key, name, value, unit \
+                = self._GENERAL_MEASUREMENTS_REGEX.match(line).groups()
+            if key == 'SupraTentorialVolNotVent' and name.lower() == 'supratentorial volume':
+                name += ' Without Ventricles'
+            assert name not in self.general_measurements, \
+                (key, name, self.general_measurements)
+            self.general_measurements[name] = (float(value), unit)
+            line = self._read_header_line(stream)
 
     @classmethod
     def read(cls, path: str) -> 'CorticalParcellationStats':

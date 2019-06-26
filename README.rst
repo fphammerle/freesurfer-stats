@@ -31,3 +31,7 @@ Usage
     'mris_anatomical_stats -th3 -mgz -cortex ../label/lh.cortex.label'
     >>> stats.hemisphere
     'left'
+    >>> stats.general_measurements['Estimated Total Intracranial Volume']
+    (1670487.274486, 'mm^3')
+    >>> stats.general_measurements['White Surface Total Area']
+    (98553.0, 'mm^2')
