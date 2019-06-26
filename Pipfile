@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+
+[dev-packages]
+isort = "*"
+# >=2.3.0 due to false+ assignment-from-no-return
+# https://github.com/PyCQA/pylint/issues/2694
+pylint = ">=2.3.0,<3"
+pytest = "<5"
+# >=2 for --cov-fail-under
+pytest-cov = "<3,>=2"
+pytest-timeout = "<2"
+
+[requires]
+python_version = "3"
