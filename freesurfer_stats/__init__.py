@@ -14,9 +14,9 @@ https://surfer.nmr.mgh.harvard.edu/
 >>> stats.headers['cmdline'][:64]
 'mris_anatomical_stats -th3 -mgz -cortex ../label/lh.cortex.label'
 >>> stats.hemisphere
->>> stats.general_measurements['Estimated Total Intracranial Volume']
+>>> stats.whole_brain_measurements['Estimated Total Intracranial Volume']
 (1670487.274486, 'mm^3')
->>> stats.general_measurements['White Surface Total Area']
+>>> stats.whole_brain_measurements['White Surface Total Area']
 (98553.0, 'mm^2')
 """
 
@@ -38,7 +38,7 @@ class CorticalParcellationStats:
     def __init__(self):
         self.headers \
             = {}  # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
-        self.general_measurements \
+        self.whole_brain_measurements \
             = {}  # type: typing.Dict[str, typing.Tuple[float, int]]
 
     @property
@@ -79,16 +79,16 @@ class CorticalParcellationStats:
             == '# Table of FreeSurfer cortical parcellation anatomical statistics'
         assert stream.readline().rstrip() == '#'
         self._read_headers(stream)
-        self.general_measurements = {}
+        self.whole_brain_measurements = {}
         line = self._read_header_line(stream)
         while not line.startswith('NTableCols'):
             key, name, value, unit \
                 = self._GENERAL_MEASUREMENTS_REGEX.match(line).groups()
             if key == 'SupraTentorialVolNotVent' and name.lower() == 'supratentorial volume':
                 name += ' Without Ventricles'
-            assert name not in self.general_measurements, \
-                (key, name, self.general_measurements)
-            self.general_measurements[name] = (float(value), unit)
+            assert name not in self.whole_brain_measurements, \
+                (key, name, self.whole_brain_measurements)
+            self.whole_brain_measurements[name] = (float(value), unit)
             line = self._read_header_line(stream)
 
     @classmethod

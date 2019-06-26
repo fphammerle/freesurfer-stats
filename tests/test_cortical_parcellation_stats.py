@@ -7,7 +7,7 @@ from conftest import SUBJECTS_DIR
 from freesurfer_stats import CorticalParcellationStats
 
 
-@pytest.mark.parametrize(('path', 'headers', 'hemisphere', 'general_measurements'), [
+@pytest.mark.parametrize(('path', 'headers', 'hemisphere', 'whole_brain_measurements'), [
     (os.path.join(SUBJECTS_DIR, 'fabian', 'stats', 'lh.aparc.DKTatlas.stats'),
      {'CreationTime': datetime.datetime(2019, 5, 9, 21, 5, 54, tzinfo=datetime.timezone.utc),
       'generating_program': 'mris_anatomical_stats',
@@ -66,13 +66,13 @@ from freesurfer_stats import CorticalParcellationStats
       'Supratentorial volume Without Ventricles': (1164180.548920, 'mm^3'),
       'Estimated Total Intracranial Volume': (1670487.274486, 'mm^3')}),
 ])
-def test_read(path, headers, hemisphere, general_measurements):
+def test_read(path, headers, hemisphere, whole_brain_measurements):
     stats = CorticalParcellationStats.read(path)
     assert headers == stats.headers
     assert hemisphere == stats.hemisphere
-    assert general_measurements.keys() == stats.general_measurements.keys()
-    for key, expected_value_unit in general_measurements.items():
+    assert whole_brain_measurements.keys() == stats.whole_brain_measurements.keys()
+    for key, expected_value_unit in whole_brain_measurements.items():
         expected_value, expected_unit = expected_value_unit
         assert expected_value \
-            == pytest.approx(stats.general_measurements[key][0])
-        assert expected_unit == stats.general_measurements[key][1]
+            == pytest.approx(stats.whole_brain_measurements[key][0])
+        assert expected_unit == stats.whole_brain_measurements[key][1]
