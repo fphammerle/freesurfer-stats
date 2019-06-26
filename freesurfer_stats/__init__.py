@@ -18,6 +18,22 @@ https://surfer.nmr.mgh.harvard.edu/
 (1670487.274486, 'mm^3')
 >>> stats.whole_brain_measurements['White Surface Total Area']
 (98553.0, 'mm^2')
+>>> stats.structure_measurements['postcentral']
+{'Structure Name': 'postcentral',
+ 'Number of Vertices': 8102,
+ 'Surface Area': 5258.0,
+ 'Gray Matter Volume': 12037.0,
+ 'Average Thickness': 2.109,
+ 'Thickness StdDev': 0.568,
+ ...}
+>>> stats.structure_measurement_units
+{'Structure Name': None,
+ 'Number of Vertices': None,
+ 'Surface Area': 'mm^2',
+ 'Gray Matter Volume': 'mm^3',
+ 'Average Thickness': 'mm',
+ 'Thickness StdDev': 'mm',
+ ...}
 """
 
 import datetime
@@ -40,16 +56,28 @@ class CorticalParcellationStats:
             = {}  # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
         self.whole_brain_measurements \
             = {}  # type: typing.Dict[str, typing.Tuple[float, int]]
+        self.structure_measurements \
+            = {}  # type: typing.Dict[str, typing.Dict[str, typing.Union[str, int, float]]]
+        self.structure_measurement_units \
+            = {}  # type: typing.Dict[str, typing.Union[str, None]]
 
     @property
     def hemisphere(self) -> str:
         return self._HEMISPHERE_PREFIX_TO_SIDE[self.headers['hemi']]
 
     @staticmethod
-    def _read_header_line(stream: typing.TextIO) -> None:
+    def _read_header_line(stream: typing.TextIO) -> str:
         line = stream.readline()
         assert line.startswith('# ')
         return line[2:].rstrip()
+
+    @classmethod
+    def _read_column_header_line(cls, stream: typing.TextIO) -> typing.Tuple[int, str, str]:
+        line = cls._read_header_line(stream)
+        assert line.startswith('TableCol'), line
+        line = line[len('TableCol '):].lstrip()
+        index, key, value = line.split(maxsplit=2)
+        return int(index), key, value
 
     def _read_headers(self, stream: typing.TextIO) -> None:
         self.headers = {}
@@ -74,6 +102,27 @@ class CorticalParcellationStats:
                         attr_value, '%Y/%m/%d %H:%M:%S')
                 self.headers[attr_name] = attr_value
 
+    @staticmethod
+    def _filter_unit(unit: str) -> typing.Union[str, None]:
+        if unit in ['unitless', 'NA']:
+            return None
+        return unit
+
+    @classmethod
+    def _read_column_attributes(cls, num: int, stream: typing.TextIO) \
+            -> typing.List[typing.Dict[str, str]]:
+        columns = []
+        for column_index in range(1, int(num) + 1):
+            column_attrs = {}
+            for _ in range(3):
+                column_index_line, key, value \
+                    = cls._read_column_header_line(stream)
+                assert column_index_line == column_index
+                assert key not in column_attrs
+                column_attrs[key] = value
+            columns.append(column_attrs)
+        return columns
+
     def _read(self, stream: typing.TextIO) -> None:
         assert stream.readline().rstrip() \
             == '# Table of FreeSurfer cortical parcellation anatomical statistics'
@@ -90,6 +139,27 @@ class CorticalParcellationStats:
                 (key, name, self.whole_brain_measurements)
             self.whole_brain_measurements[name] = (float(value), unit)
             line = self._read_header_line(stream)
+        columns = self._read_column_attributes(
+            int(line[len('NTableCols '):]), stream)
+        assert self._read_header_line(stream) \
+            == 'ColHeaders ' + ' '.join(c['ColHeader'] for c in columns)
+        assert columns[0]['ColHeader'] == 'StructName'
+        column_names = [c['FieldName'] for c in columns]
+        self.structure_measurements = {}
+        for line in stream:
+            values = line.rstrip().split()
+            assert len(values) == len(column_names)
+            struct_name = values[0]
+            assert struct_name not in self.structure_measurements
+            for column_index, column_attrs in enumerate(columns):
+                if column_attrs['ColHeader'] in ['NumVert', 'FoldInd']:
+                    values[column_index] = int(values[column_index])
+                elif column_attrs['ColHeader'] != 'StructName':
+                    values[column_index] = float(values[column_index])
+            self.structure_measurements[struct_name] \
+                = dict(zip(column_names, values))
+        self.structure_measurement_units = {
+            c['FieldName']: self._filter_unit(c['Units']) for c in columns}
 
     @classmethod
     def read(cls, path: str) -> 'CorticalParcellationStats':

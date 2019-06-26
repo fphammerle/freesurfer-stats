@@ -35,3 +35,19 @@ Usage
     (1670487.274486, 'mm^3')
     >>> stats.whole_brain_measurements['White Surface Total Area']
     (98553.0, 'mm^2')
+    >>> stats.structure_measurements['postcentral']
+    {'Structure Name': 'postcentral',
+     'Number of Vertices': 8102,
+     'Surface Area': 5258.0,
+     'Gray Matter Volume': 12037.0,
+     'Average Thickness': 2.109,
+     'Thickness StdDev': 0.568,
+     ...}
+    >>> stats.structure_measurement_units
+    {'Structure Name': None,
+     'Number of Vertices': None,
+     'Surface Area': 'mm^2',
+     'Gray Matter Volume': 'mm^3',
+     'Average Thickness': 'mm',
+     'Thickness StdDev': 'mm',
+     ...}
