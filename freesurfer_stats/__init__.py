@@ -5,13 +5,16 @@ Python Library to Read FreeSurfer's cortical parcellation anatomical statistics
 Freesurfer
 https://surfer.nmr.mgh.harvard.edu/
 
+>>> from freesurfer_stats import CorticalParcellationStats
 >>> stats = CorticalParcellationStats.read('tests/subjects/fabian/stats/lh.aparc.DKTatlas.stats')
->>> stats.creation_time.isoformat()
+>>> stats.headers['CreationTime'].isoformat()
 '2019-05-09T21:05:54+00:00'
->>> stats.cvs_version
+>>> stats.headers['cvs_version']
 'Id: mris_anatomical_stats.c,v 1.79 2016/03/14 15:15:34 greve Exp'
->>> stats.cmdline[:64]
+>>> stats.headers['cmdline'][:64]
 'mris_anatomical_stats -th3 -mgz -cortex ../label/lh.cortex.label'
+>>> stats.hemisphere
+'left'
 """
 
 import datetime
@@ -28,71 +31,36 @@ class CorticalParcellationStats:
     _HEMISPHERE_PREFIX_TO_SIDE = {'lh': 'left', 'rh': 'right'}
 
     def __init__(self):
-        self.creation_time = None  # type: typing.Optional[datetime.datetime]
-        self.generating_program = None  # type: typing.Optional[str]
-        self.cvs_version = None  # type: typing.Optional[str]
-        self.mrisurf_ccvs_version = None  # type: typing.Optional[str]
-        self.cmdline = None  # type: typing.Optional[str]
-        self.sysname = None  # type: typing.Optional[str]
-        self.hostname = None  # type: typing.Optional[str]
-        self.machine = None  # type: typing.Optional[str]
-        self.user = None  # type: typing.Optional[str]
-        self.subjects_dir = None  # type: typing.Optional[str]
-        self.anatomy_type = None  # type: typing.Optional[str]
-        self.subject_name = None  # type: typing.Optional[str]
-        self.hemisphere = None  # type: typing.Optional[str]
-        self.annotation_file = None  # type: typing.Optional[str]
-        self.annotation_file_timestamp \
-            = None  # type: typing.Optional[datetime.datetime]
+        # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
+        self.headers = {}
+
+    @property
+    def hemisphere(self) -> str:
+        return self._HEMISPHERE_PREFIX_TO_SIDE[self.headers['hemi']]
 
     def _read_headers(self, stream: typing.TextIO) -> None:
-        creation_time_str = stream.readline()[len('# CreationTime '):].rstrip()
-        self.creation_time = datetime.datetime.strptime(
-            creation_time_str, '%Y/%m/%d-%H:%M:%S-%Z')
-        if self.creation_time.tzinfo is None:
-            assert creation_time_str.endswith('-GMT')
-            self.creation_time = self.creation_time.replace(
-                tzinfo=datetime.timezone.utc)
+        self.headers = {}
         while True:
             line = stream.readline().rstrip()
-            if line == '#':
-                continue
-            elif line.startswith('# Measure'):
+            if line.startswith('# Measure'):
                 break
-            prefix, attr_name, attr_value = line.split(' ', maxsplit=2)
-            assert prefix == '#'
-            attr_value = attr_value.lstrip()
-            if attr_name == 'generating_program':
-                self.generating_program = attr_value
-            elif attr_name == 'cvs_version':
-                self.cvs_version = attr_value.strip('$').rstrip()
-            elif attr_name == 'mrisurf.c-cvs_version':
-                self.mrisurf_ccvs_version = attr_value.strip('$').rstrip()
-            elif attr_name == 'cmdline':
-                self.cmdline = attr_value
-            elif attr_name == 'sysname':
-                self.sysname = attr_value
-            elif attr_name == 'hostname':
-                self.hostname = attr_value
-            elif attr_name == 'machine':
-                self.machine = attr_value
-            elif attr_name == 'user':
-                self.user = attr_value
-            elif attr_name == 'SUBJECTS_DIR':
-                self.subjects_dir = attr_value
-            elif attr_name == 'anatomy_type':
-                self.anatomy_type = attr_value
-            elif attr_name == 'subjectname':
-                self.subject_name = attr_value
-            elif attr_name == 'hemi':
-                self.hemisphere = self._HEMISPHERE_PREFIX_TO_SIDE[attr_value]
-            elif attr_name == 'AnnotationFile':
-                self.annotation_file = attr_value
-            elif attr_name == 'AnnotationFileTimeStamp':
-                self.annotation_file_timestamp = datetime.datetime.strptime(
-                    attr_value, '%Y/%m/%d %H:%M:%S')
-            else:
-                raise ValueError(attr_name)
+            elif line != '#':
+                prefix, attr_name, attr_value = line.split(' ', maxsplit=2)
+                assert prefix == '#'
+                attr_value = attr_value.lstrip()
+                if attr_name in ['cvs_version', 'mrisurf.c-cvs_version']:
+                    attr_value = attr_value.strip('$').rstrip()
+                if attr_name == 'CreationTime':
+                    attr_dt = datetime.datetime.strptime(
+                        attr_value, '%Y/%m/%d-%H:%M:%S-%Z')
+                    if attr_dt.tzinfo is None:
+                        assert attr_value.endswith('-GMT')
+                        attr_dt = attr_dt.replace(tzinfo=datetime.timezone.utc)
+                    attr_value = attr_dt
+                if attr_name == 'AnnotationFileTimeStamp':
+                    attr_value = datetime.datetime.strptime(
+                        attr_value, '%Y/%m/%d %H:%M:%S')
+                self.headers[attr_name] = attr_value
 
     def _read(self, stream: typing.TextIO) -> None:
         assert stream.readline().rstrip() \
