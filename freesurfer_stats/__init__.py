@@ -41,6 +41,7 @@ class CorticalParcellationStats:
     _HEMISPHERE_PREFIX_TO_SIDE = {'lh': 'left', 'rh': 'right'}
     _GENERAL_MEASUREMENTS_REGEX = re.compile(
         r'^Measure \S+, ([^,\s]+),? ([^,]+), ([\d\.]+), (\S+)$')
+    _COLUMN_NAMES_NON_SAFE_REGEX = re.compile(r'\s+')
 
     def __init__(self):
         self.headers \
@@ -91,13 +92,13 @@ class CorticalParcellationStats:
                         attr_value, '%Y/%m/%d %H:%M:%S')
                 self.headers[attr_name] = attr_value
 
-    @staticmethod
-    def _format_column_name(column_attrs: typing.Dict[str, str]) -> str:
-        name = column_attrs['FieldName']
+    @classmethod
+    def _format_column_name(cls, column_attrs: typing.Dict[str, str]) -> str:
+        name = column_attrs['FieldName'].lower()
         unit = column_attrs['Units']
-        if unit in ['unitless', 'NA']:
-            return name
-        return '{} ({})'.format(name, unit)
+        if unit not in ['unitless', 'NA']:
+            name += '_' + unit
+        return cls._COLUMN_NAMES_NON_SAFE_REGEX.sub('_', name)
 
     @classmethod
     def _read_column_attributes(cls, num: int, stream: typing.TextIO) \
