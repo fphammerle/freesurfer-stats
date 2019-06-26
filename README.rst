@@ -31,10 +31,10 @@ Usage
     'mris_anatomical_stats -th3 -mgz -cortex ../label/lh.cortex.label'
     >>> stats.hemisphere
     'left'
-    >>> stats.whole_brain_measurements['Estimated Total Intracranial Volume']
-    (1670487.274486, 'mm^3')
-    >>> stats.whole_brain_measurements['White Surface Total Area']
-    (98553.0, 'mm^2')
+    >>> stats.whole_brain_measurements['estimated_total_intracranial_volume_mm^3']
+    1670487.274486
+    >>> stats.whole_brain_measurements['white_surface_total_area_mm^2']
+    98553.0
     >>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)', 'Gray Matter Volume (mm^3)']].head()
                 Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
     0  caudalanteriorcingulate                 1472                       4258

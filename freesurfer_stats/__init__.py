@@ -14,10 +14,10 @@ https://surfer.nmr.mgh.harvard.edu/
 >>> stats.headers['cmdline'][:64]
 'mris_anatomical_stats -th3 -mgz -cortex ../label/lh.cortex.label'
 >>> stats.hemisphere
->>> stats.whole_brain_measurements['Estimated Total Intracranial Volume']
-(1670487.274486, 'mm^3')
->>> stats.whole_brain_measurements['White Surface Total Area']
-(98553.0, 'mm^2')
+>>> stats.whole_brain_measurements['estimated_total_intracranial_volume_mm^3']
+1670487.274486
+>>> stats.whole_brain_measurements['white_surface_total_area_mm^2']
+98553.0
 >>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)', 'Gray Matter Volume (mm^3)']].head()
             Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
 0  caudalanteriorcingulate                 1472                       4258
@@ -93,12 +93,11 @@ class CorticalParcellationStats:
                 self.headers[attr_name] = attr_value
 
     @classmethod
-    def _format_column_name(cls, column_attrs: typing.Dict[str, str]) -> str:
-        name = column_attrs['FieldName'].lower()
-        unit = column_attrs['Units']
+    def _format_column_name(cls, name: str, unit: typing.Optional[str]) -> str:
+        column_name = name.lower()
         if unit not in ['unitless', 'NA']:
-            name += '_' + unit
-        return cls._COLUMN_NAMES_NON_SAFE_REGEX.sub('_', name)
+            column_name += '_' + unit
+        return cls._COLUMN_NAMES_NON_SAFE_REGEX.sub('_', column_name)
 
     @classmethod
     def _read_column_attributes(cls, num: int, stream: typing.TextIO) \
@@ -127,9 +126,10 @@ class CorticalParcellationStats:
                 = self._GENERAL_MEASUREMENTS_REGEX.match(line).groups()
             if key == 'SupraTentorialVolNotVent' and name.lower() == 'supratentorial volume':
                 name += ' Without Ventricles'
-            assert name not in self.whole_brain_measurements, \
-                (key, name, self.whole_brain_measurements)
-            self.whole_brain_measurements[name] = (float(value), unit)
+            column_name = self._format_column_name(name, unit)
+            assert column_name not in self.whole_brain_measurements, \
+                (key, name, column_name, self.whole_brain_measurements)
+            self.whole_brain_measurements[column_name] = float(value)
             line = self._read_header_line(stream)
         columns = self._read_column_attributes(
             int(line[len('NTableCols '):]), stream)
@@ -137,7 +137,7 @@ class CorticalParcellationStats:
             == 'ColHeaders ' + ' '.join(c['ColHeader'] for c in columns)
         self.structure_measurements = pandas.DataFrame(
             (line.rstrip().split() for line in stream),
-            columns=list(map(self._format_column_name, columns))) \
+            columns=[self._format_column_name(c['FieldName'], c['Units']) for c in columns]) \
             .apply(pandas.to_numeric, errors='ignore')
 
     @classmethod
