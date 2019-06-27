@@ -45,3 +45,34 @@ Usage
     2                   cuneus                 2597                       6722
     3               entorhinal                  499                       2379
     4                 fusiform                 3079                       9064
+
+Load Multiple Stats Files
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    >>> import glob, pandas
+    >>> from freesurfer_stats import CorticalParcellationStats
+    >>> def load_whole_brain_measurements(stats_path) -> pandas.DataFrame:
+    ...     stats = CorticalParcellationStats.read(stats_path)
+    ...     stats.whole_brain_measurements['subject'] = stats.headers['subjectname']
+    ...     stats.whole_brain_measurements['source_basename'] = os.path.basename(stats_path)
+    ...     stats.whole_brain_measurements['hemisphere'] = stats.hemisphere
+    ...     return stats.whole_brain_measurements
+    ... 
+    >>> whole_brain_measurements = pandas.concat(
+    ...     map(load_whole_brain_measurements, glob.glob('tests/subjects/fabian/stats/*h.aparc*.stats')),
+    ...     sort=False)
+    >>> whole_brain_measurements.reset_index(drop=True, inplace=True)
+    >>> whole_brain_measurements[['subject', 'source_basename', 'hemisphere',
+    ...                           'white_surface_total_area_mm^2', 'pial_surface_total_area_mm^2']]
+      subject          source_basename hemisphere  white_surface_total_area_mm^2  pial_surface_total_area_mm^2
+    0  fabian  lh.aparc.DKTatlas.stats       left                        98553.0                           NaN
+    1  fabian           rh.aparc.stats      right                        99468.9                           NaN
+    2  fabian    rh.aparc.a2009s.stats      right                        99494.9                           NaN
+    3  fabian  rh.aparc.DKTatlas.stats      right                        99494.9                           NaN
+    4  fabian           lh.aparc.stats       left                        98536.5                           NaN
+    5  fabian      lh.aparc.pial.stats       left                            NaN                      118601.0
+    6  fabian      rh.aparc.pial.stats      right                            NaN                      121260.0
+    7  fabian    lh.aparc.a2009s.stats       left                        98553.0                           NaN
+    >>> 
