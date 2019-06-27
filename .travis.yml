@@ -1,0 +1,47 @@
+language: python
+
+python:
+- 3.5
+- 3.6
+- 3.6-dev
+- 3.7
+- 3.7-dev
+
+# required for python >= 3.7
+dist: xenial
+
+env:
+# https://pypi.org/project/pandas/#history
+- PANDAS_VERSION=
+- PANDAS_VERSION=0.24.*
+- PANDAS_VERSION=0.23.*
+- PANDAS_VERSION=0.22.*
+- PANDAS_VERSION=0.21.*
+
+# https://travis-ci.org/fphammerle/freesurfer-volume-reader/builds/525556257
+matrix:
+  exclude:
+  - python: 3.7
+    env: PANDAS_VERSION=0.21.*
+  - python: 3.7
+    env: PANDAS_VERSION=0.22.*
+  - python: 3.7-dev
+    env: PANDAS_VERSION=0.21.*
+  - python: 3.7-dev
+    env: PANDAS_VERSION=0.22.*
+
+install:
+- pip install pipenv
+- pipenv sync --dev
+- if [ ! -z "$PANDAS_VERSION" ]; then
+    pipenv install --selective-upgrade "pandas==$PANDAS_VERSION";
+  fi
+- pipenv graph
+
+script:
+- pipenv run pylint freesurfer_stats tests/*
+- pipenv run pytest --cov=freesurfer_stats --cov-report=term-missing --cov-fail-under=100
+
+after_success:
+- pip install coveralls
+- coveralls

@@ -48,8 +48,8 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     install_requires=[
-        # TODO add lower version constraint
-        'pandas<1',
+        # TODO verify lower version constraint
+        'pandas>=0.21,<1',
     ],
     setup_requires=[
         'setuptools_scm',
