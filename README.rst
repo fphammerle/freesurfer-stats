@@ -32,10 +32,13 @@ Usage
     >>> stats.hemisphere
     'left'
     >>> stats.whole_brain_measurements['estimated_total_intracranial_volume_mm^3']
-    1670487.274486
+    0    1.670487e+06
+    Name: estimated_total_intracranial_volume_mm^3, dtype: float64
     >>> stats.whole_brain_measurements['white_surface_total_area_mm^2']
-    98553.0
-    >>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)', 'Gray Matter Volume (mm^3)']].head()
+    0    98553
+    Name: white_surface_total_area_mm^2, dtype: int64
+    >>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)',
+    ...                               'Gray Matter Volume (mm^3)']].head()
                 Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
     0  caudalanteriorcingulate                 1472                       4258
     1      caudalmiddlefrontal                 3039                       8239

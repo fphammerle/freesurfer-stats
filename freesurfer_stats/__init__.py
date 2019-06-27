@@ -15,10 +15,13 @@ https://surfer.nmr.mgh.harvard.edu/
 'mris_anatomical_stats -th3 -mgz -cortex ../label/lh.cortex.label'
 >>> stats.hemisphere
 >>> stats.whole_brain_measurements['estimated_total_intracranial_volume_mm^3']
-1670487.274486
+0    1.670487e+06
+Name: estimated_total_intracranial_volume_mm^3, dtype: float64
 >>> stats.whole_brain_measurements['white_surface_total_area_mm^2']
-98553.0
->>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)', 'Gray Matter Volume (mm^3)']].head()
+0    98553
+Name: white_surface_total_area_mm^2, dtype: int64
+>>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)',
+...                               'Gray Matter Volume (mm^3)']].head()
             Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
 0  caudalanteriorcingulate                 1472                       4258
 1      caudalmiddlefrontal                 3039                       8239
@@ -119,7 +122,7 @@ class CorticalParcellationStats:
             == '# Table of FreeSurfer cortical parcellation anatomical statistics'
         assert stream.readline().rstrip() == '#'
         self._read_headers(stream)
-        self.whole_brain_measurements = {}
+        self.whole_brain_measurements = pandas.DataFrame()
         line = self._read_header_line(stream)
         while not line.startswith('NTableCols'):
             key, name, value, unit \
@@ -129,7 +132,8 @@ class CorticalParcellationStats:
             column_name = self._format_column_name(name, unit)
             assert column_name not in self.whole_brain_measurements, \
                 (key, name, column_name, self.whole_brain_measurements)
-            self.whole_brain_measurements[column_name] = float(value)
+            self.whole_brain_measurements[column_name] \
+                = pandas.to_numeric([value], errors='raise')
             line = self._read_header_line(stream)
         columns = self._read_column_attributes(
             int(line[len('NTableCols '):]), stream)

@@ -4,7 +4,7 @@ import os
 import pandas.util.testing
 import pytest
 
-from conftest import SUBJECTS_DIR, assert_approx_equal
+from conftest import SUBJECTS_DIR
 from freesurfer_stats import CorticalParcellationStats
 
 
@@ -123,8 +123,13 @@ def test_read(path, headers, hemisphere, whole_brain_measurements, structure_mea
     stats = CorticalParcellationStats.read(path)
     assert headers == stats.headers
     assert hemisphere == stats.hemisphere
-    assert_approx_equal(whole_brain_measurements,
-                        stats.whole_brain_measurements)
+    pandas.util.testing.assert_frame_equal(
+        left=pandas.DataFrame([whole_brain_measurements]),
+        right=stats.whole_brain_measurements,
+        check_like=True,  # ignore the order of index & columns
+        check_dtype=True,
+        check_names=True,
+    )
     assert list(stats.structure_measurements.columns) == [
         'structure_name',
         'number_of_vertices',
