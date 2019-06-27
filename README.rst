@@ -11,6 +11,7 @@ freesurfer-stats
    :target: https://pypi.org/project/freesurfer-stats/
 
 Python Library to Read FreeSurfer's Cortical Parcellation Anatomical Statistics
+`subject/stats/[rl]h.aparc.*.stats`
 
 Freesurfer https://surfer.nmr.mgh.harvard.edu/
 
