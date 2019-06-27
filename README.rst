@@ -30,6 +30,8 @@ Usage
 
     >>> from freesurfer_stats import CorticalParcellationStats
     >>> stats = CorticalParcellationStats.read('tests/subjects/fabian/stats/lh.aparc.DKTatlas.stats')
+    >>> stats.headers['subjectname']
+    'fabian'
     >>> stats.headers['CreationTime'].isoformat()
     '2019-05-09T21:05:54+00:00'
     >>> stats.headers['cvs_version']
