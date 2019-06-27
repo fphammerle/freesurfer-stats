@@ -37,14 +37,14 @@ Usage
     >>> stats.whole_brain_measurements['white_surface_total_area_mm^2']
     0    98553
     Name: white_surface_total_area_mm^2, dtype: int64
-    >>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)',
-    ...                               'Gray Matter Volume (mm^3)']].head()
-                Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
-    0  caudalanteriorcingulate                 1472                       4258
-    1      caudalmiddlefrontal                 3039                       8239
-    2                   cuneus                 2597                       6722
-    3               entorhinal                  499                       2379
-    4                 fusiform                 3079                       9064
+    >>> stats.structural_measurements[['structure_name', 'surface_area_mm^2',
+    ...                                'gray_matter_volume_mm^3']].head()
+                structure_name  surface_area_mm^2  gray_matter_volume_mm^3
+    0  caudalanteriorcingulate               1472                     4258
+    1      caudalmiddlefrontal               3039                     8239
+    2                   cuneus               2597                     6722
+    3               entorhinal                499                     2379
+    4                 fusiform               3079                     9064
 
 Load Multiple Stats Files
 ~~~~~~~~~~~~~~~~~~~~~~~~~

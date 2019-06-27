@@ -10,7 +10,7 @@ from freesurfer_stats import CorticalParcellationStats
 
 @pytest.mark.parametrize(
     ('path', 'headers', 'hemisphere',
-     'whole_brain_measurements', 'structure_measurements'),
+     'whole_brain_measurements', 'structural_measurements'),
     [(os.path.join(SUBJECTS_DIR, 'fabian', 'stats', 'lh.aparc.DKTatlas.stats.short'),
       {'CreationTime': datetime.datetime(2019, 5, 9, 21, 5, 54, tzinfo=datetime.timezone.utc),
        'generating_program': 'mris_anatomical_stats',
@@ -119,7 +119,7 @@ from freesurfer_stats import CorticalParcellationStats
         'folding_index': 3,
         'intrinsic_curvature_index': 0.6}])],
 )
-def test_read(path, headers, hemisphere, whole_brain_measurements, structure_measurements):
+def test_read(path, headers, hemisphere, whole_brain_measurements, structural_measurements):
     stats = CorticalParcellationStats.read(path)
     assert headers == stats.headers
     assert hemisphere == stats.hemisphere
@@ -130,7 +130,7 @@ def test_read(path, headers, hemisphere, whole_brain_measurements, structure_mea
         check_dtype=True,
         check_names=True,
     )
-    assert list(stats.structure_measurements.columns) == [
+    assert list(stats.structural_measurements.columns) == [
         'structure_name',
         'number_of_vertices',
         'surface_area_mm^2',
@@ -143,8 +143,8 @@ def test_read(path, headers, hemisphere, whole_brain_measurements, structure_mea
         'intrinsic_curvature_index',
     ]
     pandas.util.testing.assert_frame_equal(
-        left=pandas.DataFrame(structure_measurements),
-        right=stats.structure_measurements,
+        left=pandas.DataFrame(structural_measurements),
+        right=stats.structural_measurements,
         check_like=True,  # ignore the order of index & columns
         check_dtype=True,
         check_names=True,

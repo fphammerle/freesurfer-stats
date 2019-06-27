@@ -20,14 +20,14 @@ Name: estimated_total_intracranial_volume_mm^3, dtype: float64
 >>> stats.whole_brain_measurements['white_surface_total_area_mm^2']
 0    98553
 Name: white_surface_total_area_mm^2, dtype: int64
->>> stats.structure_measurements[['Structure Name', 'Surface Area (mm^2)',
-...                               'Gray Matter Volume (mm^3)']].head()
-            Structure Name  Surface Area (mm^2)  Gray Matter Volume (mm^3)
-0  caudalanteriorcingulate                 1472                       4258
-1      caudalmiddlefrontal                 3039                       8239
-2                   cuneus                 2597                       6722
-3               entorhinal                  499                       2379
-4                 fusiform                 3079                       9064
+>>> stats.structural_measurements[['structure_name', 'surface_area_mm^2',
+...                                'gray_matter_volume_mm^3']].head()
+            structure_name  surface_area_mm^2  gray_matter_volume_mm^3
+0  caudalanteriorcingulate               1472                     4258
+1      caudalmiddlefrontal               3039                     8239
+2                   cuneus               2597                     6722
+3               entorhinal                499                     2379
+4                 fusiform               3079                     9064
 """
 
 import datetime
@@ -51,7 +51,7 @@ class CorticalParcellationStats:
             = {}  # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
         self.whole_brain_measurements \
             = {}  # type: typing.Dict[str, typing.Tuple[float, int]]
-        self.structure_measurements \
+        self.structural_measurements \
             = {}  # type: typing.Union[pandas.DataFrame, None]
 
     @property
@@ -139,7 +139,7 @@ class CorticalParcellationStats:
             int(line[len('NTableCols '):]), stream)
         assert self._read_header_line(stream) \
             == 'ColHeaders ' + ' '.join(c['ColHeader'] for c in columns)
-        self.structure_measurements = pandas.DataFrame(
+        self.structural_measurements = pandas.DataFrame(
             (line.rstrip().split() for line in stream),
             columns=[self._format_column_name(c['FieldName'], c['Units']) for c in columns]) \
             .apply(pandas.to_numeric, errors='ignore')
