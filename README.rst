@@ -87,4 +87,14 @@ Load Multiple Stats Files
     5  fabian      lh.aparc.pial.stats       left                            NaN                      118601.0
     6  fabian      rh.aparc.pial.stats      right                            NaN                      121260.0
     7  fabian    lh.aparc.a2009s.stats       left                        98553.0                           NaN
-    >>>
+
+Tests
+-----
+
+.. code:: sh
+
+    pip3 install --user pipenv
+    git clone https://github.com/fphammerle/freesurfer-stats.git
+    cd freesurfer-stats
+    pipenv run pylint freesurfer_stats
+    pipenv run pytest
