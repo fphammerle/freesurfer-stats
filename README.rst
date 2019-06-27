@@ -1,9 +1,16 @@
 freesurfer-stats
 ================
 
-TODO add badges
+.. image:: https://travis-ci.org/fphammerle/freesurfer-stats.svg?branch=master
+   :target: https://travis-ci.org/fphammerle/freesurfer-stats
+.. image:: https://coveralls.io/repos/github/fphammerle/freesurfer-stats/badge.svg?branch=master
+   :target: https://coveralls.io/github/fphammerle/freesurfer-stats?branch=master
+.. image:: https://img.shields.io/pypi/v/freesurfer-stats.svg
+   :target: https://pypi.org/project/freesurfer-stats/#history
+.. image:: https://img.shields.io/pypi/pyversions/freesurfer-stats.svg
+   :target: https://pypi.org/project/freesurfer-stats/
 
-Python Library to Read FreeSurfer's cortical parcellation anatomical statistics
+Python Library to Read FreeSurfer's Cortical Parcellation Anatomical Statistics
 
 Freesurfer https://surfer.nmr.mgh.harvard.edu/
 
@@ -59,7 +66,7 @@ Load Multiple Stats Files
     ...     stats.whole_brain_measurements['source_basename'] = os.path.basename(stats_path)
     ...     stats.whole_brain_measurements['hemisphere'] = stats.hemisphere
     ...     return stats.whole_brain_measurements
-    ... 
+    ...
     >>> whole_brain_measurements = pandas.concat(
     ...     map(load_whole_brain_measurements, glob.glob('tests/subjects/fabian/stats/*h.aparc*.stats')),
     ...     sort=False)
@@ -75,4 +82,4 @@ Load Multiple Stats Files
     5  fabian      lh.aparc.pial.stats       left                            NaN                      118601.0
     6  fabian      rh.aparc.pial.stats      right                            NaN                      121260.0
     7  fabian    lh.aparc.a2009s.stats       left                        98553.0                           NaN
-    >>> 
+    >>>
