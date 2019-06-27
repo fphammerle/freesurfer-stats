@@ -96,5 +96,6 @@ Tests
     pip3 install --user pipenv
     git clone https://github.com/fphammerle/freesurfer-stats.git
     cd freesurfer-stats
+    pipenv sync --dev
     pipenv run pylint freesurfer_stats
     pipenv run pytest
