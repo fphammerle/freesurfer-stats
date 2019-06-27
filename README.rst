@@ -9,6 +9,8 @@ freesurfer-stats
    :target: https://pypi.org/project/freesurfer-stats/#history
 .. image:: https://img.shields.io/pypi/pyversions/freesurfer-stats.svg
    :target: https://pypi.org/project/freesurfer-stats/
+.. image:: https://zenodo.org/badge/194054168.svg
+   :target: https://zenodo.org/badge/latestdoi/194054168
 
 Python Library to Read FreeSurfer's Cortical Parcellation Anatomical Statistics
 `subject/stats/[rl]h.aparc.*.stats`
