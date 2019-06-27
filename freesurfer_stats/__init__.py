@@ -1,5 +1,5 @@
 """
-Python Library to Read FreeSurfer's cortical parcellation anatomical statistics
+Python Library to Read FreeSurfer's Cortical Parcellation Anatomical Statistics
 ([lh]h.aparc(.*)?.stats)
 
 Freesurfer
