@@ -141,15 +141,16 @@ class CorticalParcellationStats:
         self.whole_brain_measurements = pandas.DataFrame()
         line = self._read_header_line(stream)
         while not line.startswith('NTableCols'):
-            key, name, value, unit \
-                = self._GENERAL_MEASUREMENTS_REGEX.match(line).groups()
-            if key == 'SupraTentorialVolNotVent' and name.lower() == 'supratentorial volume':
-                name += ' Without Ventricles'
-            column_name = self._format_column_name(name, unit)
-            assert column_name not in self.whole_brain_measurements, \
-                (key, name, column_name, self.whole_brain_measurements)
-            self.whole_brain_measurements[column_name] \
-                = pandas.to_numeric([value], errors='raise')
+            match = self._GENERAL_MEASUREMENTS_REGEX.match(line)
+            if match:
+                key, name, value, unit = match.groups()
+                if key == 'SupraTentorialVolNotVent' and name.lower() == 'supratentorial volume':
+                    name += ' Without Ventricles'
+                column_name = self._format_column_name(name, unit)
+                assert column_name not in self.whole_brain_measurements, \
+                    (key, name, column_name, self.whole_brain_measurements)
+                self.whole_brain_measurements[column_name] \
+                    = pandas.to_numeric([value], errors='raise')
             line = self._read_header_line(stream)
         columns = self._read_column_attributes(
             int(line[len('NTableCols '):]), stream)
