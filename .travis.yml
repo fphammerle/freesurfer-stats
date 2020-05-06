@@ -14,6 +14,7 @@ dist: xenial
 env:
 # https://pypi.org/project/pandas/#history
 - PANDAS_VERSION=
+- PANDAS_VERSION=1.*
 - PANDAS_VERSION=0.25.*
 - PANDAS_VERSION=0.24.*
 - PANDAS_VERSION=0.23.*
@@ -23,6 +24,10 @@ env:
 # https://travis-ci.org/fphammerle/freesurfer-volume-reader/builds/525556257
 matrix:
   exclude:
+  # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683777317#L208
+  # https://github.com/pandas-dev/pandas/commit/18efcb27361478daa3118079ecb166c733691ecb#diff-2eeaed663bd0d25b7e608891384b7298R814
+  - python: 3.5
+    env: PANDAS_VERSION=1.*
   - python: 3.7
     env: PANDAS_VERSION=0.21.*
   - python: 3.7

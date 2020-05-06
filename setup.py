@@ -49,8 +49,9 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     install_requires=[
+        # hoping pandas maintainers use semantic versioning
         # TODO verify lower version constraint
-        'pandas>=0.21,<1',
+        "pandas>=0.21,<2",
     ],
     setup_requires=[
         'setuptools_scm',
