@@ -233,3 +233,24 @@ def test_read(path, headers, hemisphere, whole_brain_measurements, structural_me
         check_dtype=True,
         check_names=True,
     )
+
+
+@pytest.mark.parametrize(
+    ('path', 'structural_measurements_length'),
+    [(os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'lh.BA_exvivo.stats'), 14),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'lh.BA_exvivo.thresh.stats'), 14),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'lh.aparc.DKTatlas.stats'), 31),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'lh.aparc.a2009s.stats'), 74),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'lh.aparc.pial.stats'), 34),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'lh.aparc.stats'), 34),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'rh.BA_exvivo.stats'), 14),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'rh.BA_exvivo.thresh.stats'), 14),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'rh.aparc.DKTatlas.stats'), 31),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'rh.aparc.a2009s.stats'), 74),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'rh.aparc.pial.stats'), 34),
+     (os.path.join(SUBJECTS_DIR, 'soichi', 'stats', 'rh.aparc.stats'), 34)],
+)
+def test_read_structural_measurements_length(path, structural_measurements_length):
+    # simple test to verify no exception gets raised, see test_read for comprehensive test
+    stats = CorticalParcellationStats.read(path)
+    assert len(stats.structural_measurements) == structural_measurements_length
