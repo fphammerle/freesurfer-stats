@@ -78,8 +78,8 @@ class CorticalParcellationStats:
             line = self._read_header_line(stream)
             if line.startswith('Measure'):
                 break
-            elif line:
-                attr_name, attr_value = line.split(' ', maxsplit=1)
+            if line:
+                attr_name, attr_value = line.split(" ", maxsplit=1)
                 attr_value = attr_value.lstrip()
                 if attr_name in ['cvs_version', 'mrisurf.c-cvs_version']:
                     attr_value = attr_value.strip('$').rstrip()
