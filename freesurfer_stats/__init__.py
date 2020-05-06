@@ -50,6 +50,7 @@ import datetime
 import re
 import typing
 
+import numpy
 import pandas
 
 from freesurfer_stats.version import __version__
@@ -114,9 +115,25 @@ class CorticalParcellationStats:
     @classmethod
     def _format_column_name(cls, name: str, unit: typing.Optional[str]) -> str:
         column_name = name.lower()
-        if unit not in ['unitless', 'NA']:
-            column_name += '_' + unit
-        return cls._COLUMN_NAMES_NON_SAFE_REGEX.sub('_', column_name)
+        if unit not in ["unitless", "NA"]:
+            column_name += "_" + unit
+        return cls._COLUMN_NAMES_NON_SAFE_REGEX.sub("_", column_name)
+
+    @classmethod
+    def _parse_whole_brain_measurements_line(
+        cls, line: str,
+    ) -> typing.Tuple[str, numpy.ndarray]:
+        match = cls._GENERAL_MEASUREMENTS_REGEX.match(line)
+        if not match:
+            raise ValueError("unexpected line: {!r}".format(line))
+        key, name, value, unit = match.groups()
+        if (
+            key == "SupraTentorialVolNotVent"
+            and name.lower() == "supratentorial volume"
+        ):
+            name += " Without Ventricles"
+        column_name = cls._format_column_name(name, unit)
+        return column_name, pandas.to_numeric([value], errors="raise")
 
     @classmethod
     def _read_column_attributes(cls, num: int, stream: typing.TextIO) \
@@ -140,17 +157,18 @@ class CorticalParcellationStats:
         self._read_headers(stream)
         self.whole_brain_measurements = pandas.DataFrame()
         line = self._read_header_line(stream)
-        while not line.startswith('NTableCols'):
-            match = self._GENERAL_MEASUREMENTS_REGEX.match(line)
-            if match:
-                key, name, value, unit = match.groups()
-                if key == 'SupraTentorialVolNotVent' and name.lower() == 'supratentorial volume':
-                    name += ' Without Ventricles'
-                column_name = self._format_column_name(name, unit)
-                assert column_name not in self.whole_brain_measurements, \
-                    (key, name, column_name, self.whole_brain_measurements)
-                self.whole_brain_measurements[column_name] \
-                    = pandas.to_numeric([value], errors='raise')
+        while not line.startswith("NTableCols"):
+            if line.startswith("BrainVolStatsFixed"):
+                # https://surfer.nmr.mgh.harvard.edu/fswiki/BrainVolStatsFixed
+                assert (
+                    line.startswith("BrainVolStatsFixed see ")
+                    or line == "BrainVolStatsFixed-NotNeeded because voxelvolume=1mm3"
+                )
+                self.headers["BrainVolStatsFixed"] = line[len("BrainVolStatsFixed-") :]
+            else:
+                column_name, value = self._parse_whole_brain_measurements_line(line)
+                assert column_name not in self.whole_brain_measurements, column_name
+                self.whole_brain_measurements[column_name] = value
             line = self._read_header_line(stream)
         columns = self._read_column_attributes(
             int(line[len('NTableCols '):]), stream)

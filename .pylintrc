@@ -1,3 +1,4 @@
 [MESSAGES CONTROL]
 
-disable=missing-docstring
+disable=bad-continuation, # black (will supersede yapf) https://github.com/PyCQA/pylint/pull/3571
+        missing-docstring
