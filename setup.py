@@ -23,7 +23,7 @@ with open('README.rst', 'r') as readme:
     LONG_DESCRIPTION = readme.read()
 
 setuptools.setup(
-    name='freesurfer-stats',
+    name="freesurfer-stats",
     use_scm_version={
         'write_to': os.path.join('freesurfer_stats', 'version.py'),
         # `version` triggers pylint C0103
@@ -53,7 +53,7 @@ setuptools.setup(
         'volume',
     ],
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
