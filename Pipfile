@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 freesurfer-stats = {editable = true, path = "."}
+# v1.0.0 dropped support for python<3.6.1
+# https://github.com/pandas-dev/pandas/commit/18efcb27361478daa3118079ecb166c733691ecb#diff-2eeaed663bd0d25b7e608891384b7298R814
+pandas = "<1"
 
 [dev-packages]
 isort = "*"
