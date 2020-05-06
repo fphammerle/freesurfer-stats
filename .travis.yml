@@ -14,6 +14,7 @@ dist: xenial
 env:
 # https://pypi.org/project/pandas/#history
 - PANDAS_VERSION=
+- PANDAS_VERSION=0.25.*
 - PANDAS_VERSION=0.24.*
 - PANDAS_VERSION=0.23.*
 - PANDAS_VERSION=0.22.*
