@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import datetime
 import os
 
+import numpy
 import pandas.util.testing
 import pytest
 
@@ -25,6 +26,7 @@ from conftest import SUBJECTS_DIR
 from freesurfer_stats import CorticalParcellationStats
 
 # pylint: disable=too-many-arguments
+
 
 @pytest.mark.parametrize(
     ('path', 'headers', 'hemisphere',
@@ -255,3 +257,34 @@ def test_read_structural_measurements_length(path, structural_measurements_lengt
     # simple test to verify no exception gets raised, see test_read for comprehensive test
     stats = CorticalParcellationStats.read(path)
     assert len(stats.structural_measurements) == structural_measurements_length
+
+
+@pytest.mark.parametrize(
+    ("line", "expected_column_name", "expected_value"),
+    [
+        (
+            "Measure Cortex, CortexVol Total cortical gray matter volume, 553998.311189, mm^3",
+            "total_cortical_gray_matter_volume_mm^3",
+            553998.311189,
+        )
+    ],
+)
+def test__parse_whole_brain_measurements_line(
+    line, expected_column_name, expected_value
+):
+    # pylint: disable=protected-access
+    column_name, value = CorticalParcellationStats._parse_whole_brain_measurements_line(
+        line,
+    )
+    assert column_name == expected_column_name
+    assert numpy.allclose(value, [expected_value])
+
+
+@pytest.mark.parametrize(
+    "line",
+    ["Measure Cortex, CortexVol Total cortical gray matter volume, 553998.311189",],
+)
+def test__parse_whole_brain_measurements_line_parse_error(line):
+    # pylint: disable=protected-access
+    with pytest.raises(ValueError):
+        CorticalParcellationStats._parse_whole_brain_measurements_line(line)
