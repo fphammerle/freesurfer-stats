@@ -3,9 +3,10 @@ language: python
 python:
 - 3.5
 - 3.6
-- 3.6-dev
 - 3.7
 - 3.7-dev
+- 3.8
+- 3.8-dev
 
 # required for python >= 3.7
 dist: xenial
@@ -28,6 +29,17 @@ matrix:
   - python: 3.7-dev
     env: PANDAS_VERSION=0.21.*
   - python: 3.7-dev
+    env: PANDAS_VERSION=0.22.*
+  # >/tmp/pip-install-g4jx0np4/numpy/_configtest.c:6: undefined reference to `exp'
+  # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704331#L437
+  - python: 3.8
+    env: PANDAS_VERSION=0.21.*
+  # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704330#L437
+  - python: 3.8
+    env: PANDAS_VERSION=0.22.*
+  - python: 3.8-dev
+    env: PANDAS_VERSION=0.21.*
+  - python: 3.8-dev
     env: PANDAS_VERSION=0.22.*
 
 install:
