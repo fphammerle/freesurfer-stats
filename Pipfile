@@ -17,7 +17,6 @@ pylint = ">=2.3.0,<3"
 pytest = "<5"
 # >=2 for --cov-fail-under
 pytest-cov = "<3,>=2"
-pytest-timeout = "<2"
 yapf = "*"
 # v2.0.0 dropped python<3.6 support
 # https://github.com/jaraco/zipp/commit/05a3c52b4d41690e0471a2e283cffb500dc0329a

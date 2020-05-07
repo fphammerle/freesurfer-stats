@@ -75,9 +75,7 @@ setuptools.setup(
         'setuptools_scm',
     ],
     tests_require=[
-        'pylint>=2.3.0,<3',
         'pytest-cov<3,>=2',
-        'pytest-timeout<2',
         'pytest<5',
     ],
 )
