@@ -67,6 +67,7 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     install_requires=[
+        "numpy<2",
         # hoping pandas maintainers use semantic versioning
         # TODO verify lower version constraint
         "pandas>=0.21,<2",
