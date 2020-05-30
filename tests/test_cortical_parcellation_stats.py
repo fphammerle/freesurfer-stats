@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import datetime
 import os
+import pathlib
 
 import numpy
 import pandas.util.testing
@@ -288,3 +289,25 @@ def test__parse_whole_brain_measurements_line_parse_error(line):
     # pylint: disable=protected-access
     with pytest.raises(ValueError):
         CorticalParcellationStats._parse_whole_brain_measurements_line(line)
+
+
+@pytest.mark.parametrize(
+    "path_str",
+    [os.path.join(SUBJECTS_DIR, "fabian", "stats", "lh.aparc.DKTatlas.stats.short"),],
+)
+def test_read_pathlib(path_str: str):
+    stats_str = CorticalParcellationStats.read(path_str)
+    stats_pathlib = CorticalParcellationStats.read(pathlib.Path(path_str))
+    assert stats_str.headers == stats_pathlib.headers
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://raw.githubusercontent.com/fphammerle/freesurfer-stats"
+        "/master/tests/subjects/fabian/stats/rh.aparc.stats"
+    ],
+)
+def test_read_https(url: str):
+    stats = CorticalParcellationStats.read(url)
+    assert stats.headers["generating_program"] == "mris_anatomical_stats"

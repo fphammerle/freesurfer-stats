@@ -47,6 +47,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import datetime
+import io
+import pathlib
 import re
 import typing
 
@@ -180,9 +182,32 @@ class CorticalParcellationStats:
             .apply(pandas.to_numeric, errors='ignore')
 
     @classmethod
-    def read(cls, path: str) -> 'CorticalParcellationStats':
+    def read(cls, path: typing.Union[str, pathlib.Path]) -> "CorticalParcellationStats":
+        # path_or_buffer: typing.Union[str, pathlib.Path, typing.IO[typing.AnyStr],
+        #                              s3fs.S3File, gcsfs.GCSFile]
+        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/parsers.py#L436
+        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/_typing.py#L30
+        (
+            path_or_buffer,
+            _,
+            _,
+            *instructions,
+        ) = pandas.io.common.get_filepath_or_buffer(path)
+        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/common.py#L171
+        # https://github.com/pandas-dev/pandas/blob/v0.21.0/pandas/io/common.py#L171
+        if instructions:  # pragma: no cover
+            assert len(instructions) == 1, instructions
+            should_close = instructions[0]
+        else:  # pragma: no cover
+            should_close = hasattr(path_or_buffer, "close")
         stats = cls()
-        with open(path, 'r') as stream:
+        if hasattr(path_or_buffer, "readline"):
             # pylint: disable=protected-access
-            stats._read(stream)
+            stats._read(io.TextIOWrapper(path_or_buffer))
+        else:
+            with open(path_or_buffer, "r") as stream:
+                # pylint: disable=protected-access
+                stats._read(stream)
+        if should_close:
+            path_or_buffer.close()
         return stats
