@@ -60,34 +60,38 @@ from freesurfer_stats.version import __version__
 
 class CorticalParcellationStats:
 
-    _HEMISPHERE_PREFIX_TO_SIDE = {'lh': 'left', 'rh': 'right'}
+    _HEMISPHERE_PREFIX_TO_SIDE = {"lh": "left", "rh": "right"}
     _GENERAL_MEASUREMENTS_REGEX = re.compile(
-        r'^Measure \S+, ([^,\s]+),? ([^,]+), ([\d\.]+), (\S+)$')
-    _COLUMN_NAMES_NON_SAFE_REGEX = re.compile(r'\s+')
+        r"^Measure \S+, ([^,\s]+),? ([^,]+), ([\d\.]+), (\S+)$"
+    )
+    _COLUMN_NAMES_NON_SAFE_REGEX = re.compile(r"\s+")
 
     def __init__(self):
-        self.headers \
-            = {}  # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
-        self.whole_brain_measurements \
-            = {}  # type: typing.Dict[str, typing.Tuple[float, int]]
-        self.structural_measurements \
-            = {}  # type: typing.Union[pandas.DataFrame, None]
+        self.headers = (
+            {}
+        )  # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
+        self.whole_brain_measurements = (
+            {}
+        )  # type: typing.Dict[str, typing.Tuple[float, int]]
+        self.structural_measurements = {}  # type: typing.Union[pandas.DataFrame, None]
 
     @property
     def hemisphere(self) -> str:
-        return self._HEMISPHERE_PREFIX_TO_SIDE[self.headers['hemi']]
+        return self._HEMISPHERE_PREFIX_TO_SIDE[self.headers["hemi"]]
 
     @staticmethod
     def _read_header_line(stream: typing.TextIO) -> str:
         line = stream.readline()
-        assert line.startswith('# ')
+        assert line.startswith("# ")
         return line[2:].rstrip()
 
     @classmethod
-    def _read_column_header_line(cls, stream: typing.TextIO) -> typing.Tuple[int, str, str]:
+    def _read_column_header_line(
+        cls, stream: typing.TextIO,
+    ) -> typing.Tuple[int, str, str]:
         line = cls._read_header_line(stream)
-        assert line.startswith('TableCol'), line
-        line = line[len('TableCol '):].lstrip()
+        assert line.startswith("TableCol"), line
+        line = line[len("TableCol ") :].lstrip()
         index, key, value = line.split(maxsplit=2)
         return int(index), key, value
 
@@ -95,23 +99,25 @@ class CorticalParcellationStats:
         self.headers = {}
         while True:
             line = self._read_header_line(stream)
-            if line.startswith('Measure'):
+            if line.startswith("Measure"):
                 break
             if line:
                 attr_name, attr_value = line.split(" ", maxsplit=1)
                 attr_value = attr_value.lstrip()
-                if attr_name in ['cvs_version', 'mrisurf.c-cvs_version']:
-                    attr_value = attr_value.strip('$').rstrip()
-                if attr_name == 'CreationTime':
+                if attr_name in ["cvs_version", "mrisurf.c-cvs_version"]:
+                    attr_value = attr_value.strip("$").rstrip()
+                if attr_name == "CreationTime":
                     attr_dt = datetime.datetime.strptime(
-                        attr_value, '%Y/%m/%d-%H:%M:%S-%Z')
+                        attr_value, "%Y/%m/%d-%H:%M:%S-%Z",
+                    )
                     if attr_dt.tzinfo is None:
-                        assert attr_value.endswith('-GMT')
+                        assert attr_value.endswith("-GMT")
                         attr_dt = attr_dt.replace(tzinfo=datetime.timezone.utc)
                     attr_value = attr_dt
-                if attr_name == 'AnnotationFileTimeStamp':
+                if attr_name == "AnnotationFileTimeStamp":
                     attr_value = datetime.datetime.strptime(
-                        attr_value, '%Y/%m/%d %H:%M:%S')
+                        attr_value, "%Y/%m/%d %H:%M:%S",
+                    )
                 self.headers[attr_name] = attr_value
 
     @classmethod
@@ -138,14 +144,14 @@ class CorticalParcellationStats:
         return column_name, pandas.to_numeric([value], errors="raise")
 
     @classmethod
-    def _read_column_attributes(cls, num: int, stream: typing.TextIO) \
-            -> typing.List[typing.Dict[str, str]]:
+    def _read_column_attributes(
+        cls, num: int, stream: typing.TextIO,
+    ) -> typing.List[typing.Dict[str, str]]:
         columns = []
         for column_index in range(1, int(num) + 1):
             column_attrs = {}
             for _ in range(3):
-                column_index_line, key, value \
-                    = cls._read_column_header_line(stream)
+                column_index_line, key, value = cls._read_column_header_line(stream)
                 assert column_index_line == column_index
                 assert key not in column_attrs
                 column_attrs[key] = value
@@ -153,9 +159,11 @@ class CorticalParcellationStats:
         return columns
 
     def _read(self, stream: typing.TextIO) -> None:
-        assert stream.readline().rstrip() \
-            == '# Table of FreeSurfer cortical parcellation anatomical statistics'
-        assert stream.readline().rstrip() == '#'
+        assert (
+            stream.readline().rstrip()
+            == "# Table of FreeSurfer cortical parcellation anatomical statistics"
+        )
+        assert stream.readline().rstrip() == "#"
         self._read_headers(stream)
         self.whole_brain_measurements = pandas.DataFrame()
         line = self._read_header_line(stream)
@@ -172,14 +180,16 @@ class CorticalParcellationStats:
                 assert column_name not in self.whole_brain_measurements, column_name
                 self.whole_brain_measurements[column_name] = value
             line = self._read_header_line(stream)
-        columns = self._read_column_attributes(
-            int(line[len('NTableCols '):]), stream)
-        assert self._read_header_line(stream) \
-            == 'ColHeaders ' + ' '.join(c['ColHeader'] for c in columns)
+        columns = self._read_column_attributes(int(line[len("NTableCols ") :]), stream)
+        assert self._read_header_line(stream) == "ColHeaders " + " ".join(
+            c["ColHeader"] for c in columns
+        )
         self.structural_measurements = pandas.DataFrame(
             (line.rstrip().split() for line in stream),
-            columns=[self._format_column_name(c['FieldName'], c['Units']) for c in columns]) \
-            .apply(pandas.to_numeric, errors='ignore')
+            columns=[
+                self._format_column_name(c["FieldName"], c["Units"]) for c in columns
+            ],
+        ).apply(pandas.to_numeric, errors="ignore")
 
     @classmethod
     def read(cls, path: typing.Union[str, pathlib.Path]) -> "CorticalParcellationStats":

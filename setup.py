@@ -19,38 +19,38 @@ import os
 
 import setuptools
 
-with open('README.rst', 'r') as readme:
+with open("README.rst", "r") as readme:
     LONG_DESCRIPTION = readme.read()
 
 setuptools.setup(
     name="freesurfer-stats",
     use_scm_version={
-        'write_to': os.path.join('freesurfer_stats', 'version.py'),
+        "write_to": os.path.join("freesurfer_stats", "version.py"),
         # `version` triggers pylint C0103
-        'write_to_template': "__version__ = '{version}'\n",
+        "write_to_template": "__version__ = '{version}'\n",
     },
     description="Python Library to Read FreeSurfer's cortical parcellation anatomical statistics",
     long_description=LONG_DESCRIPTION,
-    author='Fabian Peter Hammerle',
-    author_email='fabian@hammerle.me',
-    url='https://github.com/fphammerle/freesurfer-stats',
+    author="Fabian Peter Hammerle",
+    author_email="fabian@hammerle.me",
+    url="https://github.com/fphammerle/freesurfer-stats",
     license="GPLv3+",
     keywords=[
-        'anatomy',
-        'aparc',
-        'area',
-        'brain',
-        'cortex',
-        'dataframe',
-        'freesurfer',
-        'mris_anatomical_stats',
-        'neuroimaging',
-        'pandas',
-        'parcellation',
-        'reader',
-        'statistics',
-        'surface',
-        'volume',
+        "anatomy",
+        "aparc",
+        "area",
+        "brain",
+        "cortex",
+        "dataframe",
+        "freesurfer",
+        "mris_anatomical_stats",
+        "neuroimaging",
+        "pandas",
+        "parcellation",
+        "reader",
+        "statistics",
+        "surface",
+        "volume",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -72,11 +72,6 @@ setuptools.setup(
         # TODO verify lower version constraint
         "pandas>=0.21,<2",
     ],
-    setup_requires=[
-        'setuptools_scm',
-    ],
-    tests_require=[
-        'pytest-cov<3,>=2',
-        'pytest<5',
-    ],
+    setup_requires=["setuptools_scm"],
+    tests_require=["pytest<5"],
 )

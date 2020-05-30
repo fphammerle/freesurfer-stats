@@ -1,6 +1,8 @@
 freesurfer-stats
 ================
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
 .. image:: https://travis-ci.org/fphammerle/freesurfer-stats.svg?branch=master
    :target: https://travis-ci.org/fphammerle/freesurfer-stats
 .. image:: https://coveralls.io/repos/github/fphammerle/freesurfer-stats/badge.svg?branch=master
