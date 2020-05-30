@@ -183,11 +183,23 @@ class CorticalParcellationStats:
 
     @classmethod
     def read(cls, path: typing.Union[str, pathlib.Path]) -> "CorticalParcellationStats":
-        # support http, s3 & gcs
+        # path_or_buffer: typing.Union[str, pathlib.Path, typing.IO[typing.AnyStr],
+        #                              s3fs.S3File, gcsfs.GCSFile]
+        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/parsers.py#L436
+        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/_typing.py#L30
+        (
+            path_or_buffer,
+            _,
+            _,
+            *instructions,
+        ) = pandas.io.common.get_filepath_or_buffer(path)
         # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/common.py#L171
-        path_or_buffer, _, _, should_close = pandas.io.common.get_filepath_or_buffer(
-            path
-        )
+        # https://github.com/pandas-dev/pandas/blob/v0.21.0/pandas/io/common.py#L171
+        if instructions:
+            assert len(instructions) == 1, instructions
+            should_close = instructions[0]
+        else:
+            should_close = hasattr(path_or_buffer, "close")
         stats = cls()
         if hasattr(path_or_buffer, "readline"):
             # pylint: disable=protected-access
