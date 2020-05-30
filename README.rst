@@ -88,6 +88,23 @@ Load Multiple Stats Files
     6  fabian      rh.aparc.pial.stats      right                            NaN                      121260.0
     7  fabian    lh.aparc.a2009s.stats       left                        98553.0                           NaN
 
+Load Stats File From Webserver, Amazon S3 or Google Cloud Storage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    >>> from freesurfer_stats import CorticalParcellationStats
+    >>> freesurfer_stats.CorticalParcellationStats('https://[...]/stats/rh.aparc.stats').read()
+    >>> stats.whole_brain_measurements['total_cortical_gray_matter_volume_mm^3']
+    0    553998.311189
+    Name: total_cortical_gray_matter_volume_mm^3, dtype: float64
+
+Replace `https://` with `s3://` or `gcs://`.
+
+Credentials for S3 may be provided in `~/.aws/credentials`
+or via environment variables.
+See [S3Fs docs](https://s3fs.readthedocs.io/en/latest/#credentials).
+
 Tests
 -----
 
