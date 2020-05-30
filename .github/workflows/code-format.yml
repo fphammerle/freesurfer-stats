@@ -1,0 +1,15 @@
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - run: pip install black==19.10b0
+    - run: pip freeze
+    - run: black --check .
