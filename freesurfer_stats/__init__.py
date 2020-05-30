@@ -195,10 +195,10 @@ class CorticalParcellationStats:
         ) = pandas.io.common.get_filepath_or_buffer(path)
         # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/common.py#L171
         # https://github.com/pandas-dev/pandas/blob/v0.21.0/pandas/io/common.py#L171
-        if instructions:
+        if instructions:  # pragma: no cover
             assert len(instructions) == 1, instructions
             should_close = instructions[0]
-        else:
+        else:  # pragma: no cover
             should_close = hasattr(path_or_buffer, "close")
         stats = cls()
         if hasattr(path_or_buffer, "readline"):
