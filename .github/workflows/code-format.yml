@@ -10,7 +10,6 @@ jobs:
     - uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - run: pip install --upgrade pipenv>=2018.10.9
-    - run: pipenv install --deploy --dev
-    - run: pipenv graph
-    - run: pipenv run black --check .
+    - run: pip install black==19.10b0
+    - run: pip freeze
+    - run: black --check .
