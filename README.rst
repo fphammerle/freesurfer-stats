@@ -99,9 +99,9 @@ Load Stats File From Webserver, Amazon S3 or Google Cloud Storage
     0    553998.311189
     Name: total_cortical_gray_matter_volume_mm^3, dtype: float64
 
-Replace `https://` with `s3://` or `gcs://`.
+Replace ``https://`` with ``s3://`` or ``gcs://``.
 
-Credentials for S3 may be provided in `~/.aws/credentials`
+Credentials for S3 may be provided in ``~/.aws/credentials``
 or via environment variables.
 See `S3Fs docs <https://s3fs.readthedocs.io/en/latest/#credentials>`__.
 
