@@ -96,7 +96,7 @@ Load Stats File From Webserver, Amazon S3 or Google Cloud Storage
 .. code:: python
 
     >>> from freesurfer_stats import CorticalParcellationStats
-    >>> freesurfer_stats.CorticalParcellationStats('https://[...]/stats/rh.aparc.stats').read()
+    >>> stats = CorticalParcellationStats.read('https://[...]/stats/rh.aparc.stats')
     >>> stats.whole_brain_measurements['total_cortical_gray_matter_volume_mm^3']
     0    553998.311189
     Name: total_cortical_gray_matter_volume_mm^3, dtype: float64
