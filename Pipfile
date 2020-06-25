@@ -21,9 +21,14 @@ pylint-import-requirements = "<3"
 pytest = "<5"
 # >=2 for --cov-fail-under
 pytest-cov = "<3,>=2"
+
 # v2.0.0 dropped python<3.6 support
 # https://github.com/jaraco/zipp/commit/05a3c52b4d41690e0471a2e283cffb500dc0329a
 zipp = "<2"
+
+# no python3.8 wheels for pandas v0.24.2 & v0.23.4 available
+# https://travis-ci.org/github/fphammerle/freesurfer-stats/builds/701952350
+Cython = {version = "*", markers = "python_version > '3.7'"}
 
 [requires]
 python_version = "3"
