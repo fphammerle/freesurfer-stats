@@ -47,6 +47,18 @@ matrix:
     env: PANDAS_VERSION=0.21.*
   - python: 3.8-dev
     env: PANDAS_VERSION=0.22.*
+  # no python3.8 wheels for pandas v0.24.2 & v0.23.4 available
+  # https://travis-ci.org/github/fphammerle/freesurfer-stats/builds/701952350
+  # build takes longer than 10min
+  # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/702077404#L199
+  - python: 3.8
+    env: PANDAS_VERSION=0.23.*
+  - python: 3.8
+    env: PANDAS_VERSION=0.24.*
+  - python: 3.8-dev
+    env: PANDAS_VERSION=0.23.*
+  - python: 3.8-dev
+    env: PANDAS_VERSION=0.24.*
 
 install:
 - pip install pipenv
