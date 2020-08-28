@@ -8,12 +8,16 @@ freesurfer-stats = {editable = true, path = "."}
 # v1.0.0 dropped support for python<3.6.1
 # https://github.com/pandas-dev/pandas/commit/18efcb27361478daa3118079ecb166c733691ecb#diff-2eeaed663bd0d25b7e608891384b7298R814
 pandas = "<1"
+# v1.19.0 dropped support for python<3.6
+# https://github.com/numpy/numpy/commit/b3b6cc0347979a21b48ca22654b1caf9387045b0
+numpy = "<1.19.0"
 
 [dev-packages]
 # black requires python>=3.6
 # https://github.com/psf/black/commit/e74117f172e29e8a980e2c9de929ad50d3769150#diff-2eeaed663bd0d25b7e608891384b7298R51
 #black = "==19.10b0"
-isort = "*"
+# https://github.com/WanzenBug/pylint-import-requirements/issues/27
+isort = "<5"
 # >=2.3.0 due to false+ assignment-from-no-return
 # https://github.com/PyCQA/pylint/issues/2694
 pylint = ">=2.3.0,<3"
