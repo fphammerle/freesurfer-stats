@@ -63,12 +63,6 @@ matrix:
 install:
 - pip install pipenv
 - pipenv sync --dev
-# ModuleNotFoundError: No module named 'importlib_metadata'
-# https://github.com/WanzenBug/pylint-import-requirements/issues/17
-- if python3 -c 'import sys; sys.exit(sys.version_info < (3, 8))'; then
-  pipenv graph;
-  pipenv install --dev importlib-metadata;
-  fi
 - if [ ! -z "$PANDAS_VERSION" ]; then
     pipenv install --selective-upgrade "pandas==$PANDAS_VERSION";
   fi
