@@ -60,19 +60,35 @@ from freesurfer_stats.version import __version__
 
 def _get_filepath_or_buffer(
     path: typing.Union[str, pathlib.Path]
-) -> typing.Tuple[typing.Any, bool]:  # (pandas._typing.FileOrBuffer, bool)
+) -> typing.Tuple[
+    typing.Any, bool  # pandas._typing.FileOrBuffer, bool)
+]:  # pragma: no cover
+    # can't check coverage due to pandas version branching.
+    # pipeline tests against multiple pandas versions.
+    if not hasattr(pandas.io.common, "get_filepath_or_buffer"):
+        # pandas.io.common.get_filepath_or_buffer was made private in v1.2.0:
+        # https://github.com/pandas-dev/pandas/commit/6d1541e1782a7b94797d5432922e64a97934cfa4#diff-934d8564d648e7521db673c6399dcac98e45adfd5230ba47d3aabfcc21979febL247
+        # semver?!? breaking change not even mentioned in changelog:
+        # https://pandas.pydata.org/pandas-docs/stable/whatsnew/v1.2.0.html
+        # new wrapper: get_handle
+        # https://github.com/pandas-dev/pandas/blob/v1.2.0/pandas/io/common.py#L490
+        # pandas v1.1's get_handle does not yet support urls
+        # pylint: disable=no-member; for python<v1.2.0
+        io_handle = pandas.io.common.get_handle(path, "r")
+        return io_handle.handle, True
     # path_or_buffer: typing.Union[str, pathlib.Path, typing.IO[typing.AnyStr],
     #                              s3fs.S3File, gcsfs.GCSFile]
     # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/parsers.py#L436
     # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/_typing.py#L30
+    # pylint: disable=no-member; for python>=v1.2.0
     (path_or_buffer, _, _, *instructions) = pandas.io.common.get_filepath_or_buffer(
         path
     )
-    if instructions:  # pragma: no cover
+    if instructions:
         # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/common.py#L171
         assert len(instructions) == 1, instructions
         should_close = instructions[0]
-    else:  # pragma: no cover
+    else:
         # https://github.com/pandas-dev/pandas/blob/v0.21.0/pandas/io/common.py#L171
         should_close = hasattr(path_or_buffer, "close")
     return path_or_buffer, should_close
@@ -220,13 +236,15 @@ class CorticalParcellationStats:
     def read(cls, path: typing.Union[str, pathlib.Path]) -> "CorticalParcellationStats":
         path_or_buffer, should_close = _get_filepath_or_buffer(path)
         stats = cls()
-        try:
-            if hasattr(path_or_buffer, "readline"):
-                # pylint: disable=protected-access
+        try:  # pragma: no cover
+            # can't check coverage due to pandas version branching.
+            # pylint: disable=protected-access; false-positive for ._read
+            if isinstance(path_or_buffer, io.TextIOWrapper):  # pandas>=v1.2.0
+                stats._read(path_or_buffer)
+            elif hasattr(path_or_buffer, "readline"):
                 stats._read(io.TextIOWrapper(path_or_buffer))
             else:
                 with open(path_or_buffer, "r") as stream:
-                    # pylint: disable=protected-access
                     stats._read(stream)
         finally:
             if should_close:

@@ -46,12 +46,15 @@ jobs:
         - 0.23.*
         - 0.24.*
         - 0.25.*
-        - 1.1.*
+        - 1.1.* # pandas.io.common.get_handle does not yet support urls
+        - 1.*
         exclude:
           # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683777317#L208
           # https://github.com/pandas-dev/pandas/commit/18efcb27361478daa3118079ecb166c733691ecb#diff-2eeaed663bd0d25b7e608891384b7298R814
         - python-version: 3.5
           pandas-version: 1.1.*
+        - python-version: 3.5
+          pandas-version: 1.*
         - python-version: 3.7
           pandas-version: 0.21.*
         - python-version: 3.7
