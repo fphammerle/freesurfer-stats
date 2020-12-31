@@ -13,6 +13,20 @@ on:
   - cron: '0 20 * * 5'
 
 jobs:
+  code-format:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version:
+        - 3.8
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: pip install black==19.10b0
+    - run: pip freeze
+    - run: black --check .
   tests:
     runs-on: ubuntu-18.04
     strategy:
