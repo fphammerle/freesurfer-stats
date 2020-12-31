@@ -97,7 +97,7 @@ class CorticalParcellationStats:
 
     @property
     def hemisphere(self) -> str:
-        return self._HEMISPHERE_PREFIX_TO_SIDE[self.headers["hemi"]]
+        return self._HEMISPHERE_PREFIX_TO_SIDE[typing.cast(str, self.headers["hemi"])]
 
     @staticmethod
     def _read_header_line(stream: typing.TextIO) -> str:
@@ -122,26 +122,31 @@ class CorticalParcellationStats:
             if line.startswith("Measure"):
                 break
             if line:
-                attr_name, attr_value = line.split(" ", maxsplit=1)
-                attr_value = attr_value.lstrip()
+                attr_name, attr_value_str = line.split(" ", maxsplit=1)
+                attr_value_str = attr_value_str.lstrip()
                 if attr_name in ["cvs_version", "mrisurf.c-cvs_version"]:
-                    attr_value = attr_value.strip("$").rstrip()
-                if attr_name == "CreationTime":
+                    attr_value = typing.cast(
+                        typing.Union[str, datetime.datetime],
+                        attr_value_str.strip("$").rstrip(),
+                    )
+                elif attr_name == "CreationTime":
                     attr_dt = datetime.datetime.strptime(
-                        attr_value, "%Y/%m/%d-%H:%M:%S-%Z"
+                        attr_value_str, "%Y/%m/%d-%H:%M:%S-%Z"
                     )
                     if attr_dt.tzinfo is None:
-                        assert attr_value.endswith("-GMT")
+                        assert attr_value_str.endswith("-GMT")
                         attr_dt = attr_dt.replace(tzinfo=datetime.timezone.utc)
                     attr_value = attr_dt
-                if attr_name == "AnnotationFileTimeStamp":
+                elif attr_name == "AnnotationFileTimeStamp":
                     attr_value = datetime.datetime.strptime(
-                        attr_value, "%Y/%m/%d %H:%M:%S"
+                        attr_value_str, "%Y/%m/%d %H:%M:%S"
                     )
+                else:
+                    attr_value = attr_value_str
                 self.headers[attr_name] = attr_value
 
     @classmethod
-    def _format_column_name(cls, name: str, unit: typing.Optional[str]) -> str:
+    def _format_column_name(cls, name: str, unit: str) -> str:
         column_name = name.lower()
         if unit not in ["unitless", "NA"]:
             column_name += "_" + unit
@@ -169,7 +174,7 @@ class CorticalParcellationStats:
     ) -> typing.List[typing.Dict[str, str]]:
         columns = []
         for column_index in range(1, int(num) + 1):
-            column_attrs = {}
+            column_attrs = {}  # type: typing.Dict[str, str]
             for _ in range(3):
                 column_index_line, key, value = cls._read_column_header_line(stream)
                 assert column_index_line == column_index

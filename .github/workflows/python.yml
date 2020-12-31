@@ -93,6 +93,7 @@ jobs:
     # > tests/resources/__init__.py:1:0: F0010: error while code parsing: Unable to load file tests/resources/__init__.py:
     # > [Errno 2] No such file or directory: 'tests/resources/__init__.py' (parse-error)
     - run: pipenv run pylint --disable=parse-error tests/*
+    - run: pipenv run mypy "$(cat *.egg-info/top_level.txt)" tests
     # >=1.9.0 to detect branch name
     # https://github.com/coveralls-clients/coveralls-python/pull/207
     # https://github.com/coverallsapp/github-action/issues/4#issuecomment-547036866
