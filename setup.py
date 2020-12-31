@@ -68,9 +68,12 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         "numpy<2",
-        # hoping pandas maintainers use semantic versioning
+        # pandas v1.2.0 made `get_filepath_or_buffer` private without releasing major version.
+        # semver?!? not even mentioned in changelog
+        # https://pandas.pydata.org/pandas-docs/stable/whatsnew/v1.2.0.html
+        # https://github.com/pandas-dev/pandas/commit/6d1541e1782a7b94797d5432922e64a97934cfa4#diff-934d8564d648e7521db673c6399dcac98e45adfd5230ba47d3aabfcc21979febL247
         # TODO verify lower version constraint
-        "pandas>=0.21,<2",
+        "pandas>=0.21,<1.2",
     ],
     setup_requires=["setuptools_scm"],
     tests_require=["pytest<5"],
