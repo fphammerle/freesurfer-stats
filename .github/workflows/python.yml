@@ -1,0 +1,88 @@
+# sync with https://github.com/fphammerle/ical2vdir/blob/master/.github/workflows/python.yml
+
+# https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+
+# shown in badge
+# https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow#adding-a-workflow-status-badge-to-your-repository
+name: tests
+
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron: '0 20 * * 5'
+
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version:
+        - 3.5
+        - 3.6
+        - 3.7
+        - 3.8
+        pandas-version:
+        - '' # locked version
+        - 0.21.*
+        - 0.22.*
+        - 0.23.*
+        - 0.24.*
+        - 0.25.*
+        - 1.1.*
+        exclude:
+          # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683777317#L208
+          # https://github.com/pandas-dev/pandas/commit/18efcb27361478daa3118079ecb166c733691ecb#diff-2eeaed663bd0d25b7e608891384b7298R814
+        - python-version: 3.5
+          pandas-version: 1.1.*
+        - python-version: 3.7
+          pandas-version: 0.21.*
+        - python-version: 3.7
+          pandas-version: 0.22.*
+        # > /tmp/pip-install-g4jx0np4/numpy/_configtest.c:6: undefined reference to `exp'
+        # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704331#L437
+        - python-version: 3.8
+          pandas-version: 0.21.*
+        # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704330#L437
+        - python-version: 3.8
+          pandas-version: 0.22.*
+        # no python-version3.8 wheels for pandas v0.24.2 & v0.23.4 available
+        # https://travis-ci.org/github/fphammerle/freesurfer-stats/builds/701952350
+        # build takes longer than 10min
+        # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/702077404#L199
+        - python-version: 3.8
+          pandas-version: 0.23.*
+        - python-version: 3.8
+          pandas-version: 0.24.*
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: pip install --upgrade pipenv==2020.8.13
+    - run: pipenv install --python "$PYTHON_VERSION" --deploy --dev
+      env:
+        PYTHON_VERSION: ${{ matrix.python-version }}
+    # `pipenv install --selective-upgrade "pandas==$PANDAS_VERSION"` was not effective
+    - run: '[ -z "$PANDAS_VERSION" ] || pipenv run pip install "pandas==$PANDAS_VERSION"'
+      env:
+        PANDAS_VERSION: ${{ matrix.pandas-version }}
+    - run: pipenv graph
+    - run: pipenv run pytest --cov="$(cat *.egg-info/top_level.txt)" --cov-report=term-missing --cov-fail-under=100
+    - run: pipenv run pylint --load-plugins=pylint_import_requirements "$(cat *.egg-info/top_level.txt)"
+    # https://github.com/PyCQA/pylint/issues/352
+    # disable parse-error due to:
+    # > tests/resources/__init__.py:1:0: F0010: error while code parsing: Unable to load file tests/resources/__init__.py:
+    # > [Errno 2] No such file or directory: 'tests/resources/__init__.py' (parse-error)
+    - run: pipenv run pylint --disable=parse-error tests/*
+    # >=1.9.0 to detect branch name
+    # https://github.com/coveralls-clients/coveralls-python/pull/207
+    # https://github.com/coverallsapp/github-action/issues/4#issuecomment-547036866
+    # 1.11.0 https://github.com/coveralls-clients/coveralls-python/issues/219
+    - run: pip install 'coveralls>=1.9.0,<2,!=1.11.0'
+    # https://github.com/coverallsapp/github-action/issues/30
+    # https://github.com/coverallsapp/github-action/issues/4#issuecomment-529399410
+    - run: coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
