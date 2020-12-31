@@ -58,6 +58,26 @@ import pandas
 from freesurfer_stats.version import __version__
 
 
+def _get_filepath_or_buffer(
+    path: typing.Union[str, pathlib.Path]
+) -> typing.Tuple[typing.Any, bool]:  # (pandas._typing.FileOrBuffer, bool)
+    # path_or_buffer: typing.Union[str, pathlib.Path, typing.IO[typing.AnyStr],
+    #                              s3fs.S3File, gcsfs.GCSFile]
+    # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/parsers.py#L436
+    # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/_typing.py#L30
+    (path_or_buffer, _, _, *instructions) = pandas.io.common.get_filepath_or_buffer(
+        path
+    )
+    if instructions:  # pragma: no cover
+        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/common.py#L171
+        assert len(instructions) == 1, instructions
+        should_close = instructions[0]
+    else:  # pragma: no cover
+        # https://github.com/pandas-dev/pandas/blob/v0.21.0/pandas/io/common.py#L171
+        should_close = hasattr(path_or_buffer, "close")
+    return path_or_buffer, should_close
+
+
 class CorticalParcellationStats:
 
     _HEMISPHERE_PREFIX_TO_SIDE = {"lh": "left", "rh": "right"}
@@ -87,7 +107,7 @@ class CorticalParcellationStats:
 
     @classmethod
     def _read_column_header_line(
-        cls, stream: typing.TextIO,
+        cls, stream: typing.TextIO
     ) -> typing.Tuple[int, str, str]:
         line = cls._read_header_line(stream)
         assert line.startswith("TableCol"), line
@@ -108,7 +128,7 @@ class CorticalParcellationStats:
                     attr_value = attr_value.strip("$").rstrip()
                 if attr_name == "CreationTime":
                     attr_dt = datetime.datetime.strptime(
-                        attr_value, "%Y/%m/%d-%H:%M:%S-%Z",
+                        attr_value, "%Y/%m/%d-%H:%M:%S-%Z"
                     )
                     if attr_dt.tzinfo is None:
                         assert attr_value.endswith("-GMT")
@@ -116,7 +136,7 @@ class CorticalParcellationStats:
                     attr_value = attr_dt
                 if attr_name == "AnnotationFileTimeStamp":
                     attr_value = datetime.datetime.strptime(
-                        attr_value, "%Y/%m/%d %H:%M:%S",
+                        attr_value, "%Y/%m/%d %H:%M:%S"
                     )
                 self.headers[attr_name] = attr_value
 
@@ -129,7 +149,7 @@ class CorticalParcellationStats:
 
     @classmethod
     def _parse_whole_brain_measurements_line(
-        cls, line: str,
+        cls, line: str
     ) -> typing.Tuple[str, numpy.ndarray]:
         match = cls._GENERAL_MEASUREMENTS_REGEX.match(line)
         if not match:
@@ -145,7 +165,7 @@ class CorticalParcellationStats:
 
     @classmethod
     def _read_column_attributes(
-        cls, num: int, stream: typing.TextIO,
+        cls, num: int, stream: typing.TextIO
     ) -> typing.List[typing.Dict[str, str]]:
         columns = []
         for column_index in range(1, int(num) + 1):
@@ -193,31 +213,17 @@ class CorticalParcellationStats:
 
     @classmethod
     def read(cls, path: typing.Union[str, pathlib.Path]) -> "CorticalParcellationStats":
-        # path_or_buffer: typing.Union[str, pathlib.Path, typing.IO[typing.AnyStr],
-        #                              s3fs.S3File, gcsfs.GCSFile]
-        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/parsers.py#L436
-        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/_typing.py#L30
-        (
-            path_or_buffer,
-            _,
-            _,
-            *instructions,
-        ) = pandas.io.common.get_filepath_or_buffer(path)
-        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/common.py#L171
-        # https://github.com/pandas-dev/pandas/blob/v0.21.0/pandas/io/common.py#L171
-        if instructions:  # pragma: no cover
-            assert len(instructions) == 1, instructions
-            should_close = instructions[0]
-        else:  # pragma: no cover
-            should_close = hasattr(path_or_buffer, "close")
+        path_or_buffer, should_close = _get_filepath_or_buffer(path)
         stats = cls()
-        if hasattr(path_or_buffer, "readline"):
-            # pylint: disable=protected-access
-            stats._read(io.TextIOWrapper(path_or_buffer))
-        else:
-            with open(path_or_buffer, "r") as stream:
+        try:
+            if hasattr(path_or_buffer, "readline"):
                 # pylint: disable=protected-access
-                stats._read(stream)
-        if should_close:
-            path_or_buffer.close()
+                stats._read(io.TextIOWrapper(path_or_buffer))
+            else:
+                with open(path_or_buffer, "r") as stream:
+                    # pylint: disable=protected-access
+                    stats._read(stream)
+        finally:
+            if should_close:
+                path_or_buffer.close()
         return stats

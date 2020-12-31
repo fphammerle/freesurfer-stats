@@ -346,7 +346,7 @@ def test__parse_whole_brain_measurements_line(
 ):
     # pylint: disable=protected-access
     column_name, value = CorticalParcellationStats._parse_whole_brain_measurements_line(
-        line,
+        line
     )
     assert column_name == expected_column_name
     assert numpy.allclose(value, [expected_value])
@@ -354,7 +354,7 @@ def test__parse_whole_brain_measurements_line(
 
 @pytest.mark.parametrize(
     "line",
-    ["Measure Cortex, CortexVol Total cortical gray matter volume, 553998.311189",],
+    ["Measure Cortex, CortexVol Total cortical gray matter volume, 553998.311189"],
 )
 def test__parse_whole_brain_measurements_line_parse_error(line):
     # pylint: disable=protected-access
@@ -364,7 +364,7 @@ def test__parse_whole_brain_measurements_line_parse_error(line):
 
 @pytest.mark.parametrize(
     "path_str",
-    [os.path.join(SUBJECTS_DIR, "fabian", "stats", "lh.aparc.DKTatlas.stats.short"),],
+    [os.path.join(SUBJECTS_DIR, "fabian", "stats", "lh.aparc.DKTatlas.stats.short")],
 )
 def test_read_pathlib(path_str: str):
     stats_str = CorticalParcellationStats.read(path_str)
