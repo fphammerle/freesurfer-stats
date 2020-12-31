@@ -3,8 +3,8 @@ freesurfer-stats
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
-.. image:: https://travis-ci.org/fphammerle/freesurfer-stats.svg?branch=master
-   :target: https://travis-ci.org/fphammerle/freesurfer-stats
+.. image:: https://github.com/fphammerle/freesurfer-stats/workflows/tests/badge.svg
+   :target: https://github.com/fphammerle/freesurfer-stats/actions
 .. image:: https://coveralls.io/repos/github/fphammerle/freesurfer-stats/badge.svg?branch=master
    :target: https://coveralls.io/github/fphammerle/freesurfer-stats?branch=master
 .. image:: https://img.shields.io/pypi/v/freesurfer-stats.svg
