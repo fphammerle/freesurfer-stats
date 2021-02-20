@@ -39,6 +39,7 @@ jobs:
         - 3.6
         - 3.7
         - 3.8
+        - 3.9
         pandas-version:
         - '' # locked version
         - 0.21.*
@@ -74,6 +75,14 @@ jobs:
           pandas-version: 0.23.*
         - python-version: 3.8
           pandas-version: 0.24.*
+        - python-version: 3.9
+          pandas-version: 0.21.*
+        - python-version: 3.9
+          pandas-version: 0.22.*
+        - python-version: 3.9
+          pandas-version: 0.23.*
+        - python-version: 3.9
+          pandas-version: 0.24.*
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
@@ -90,7 +99,9 @@ jobs:
         PANDAS_VERSION: ${{ matrix.pandas-version }}
     - run: pipenv graph
     - run: pipenv run pytest --cov="$(cat *.egg-info/top_level.txt)" --cov-report=term-missing --cov-fail-under=100
-    - run: pipenv run pylint --load-plugins=pylint_import_requirements "$(cat *.egg-info/top_level.txt)"
+    # https://github.com/PyCQA/pylint/issues/3882
+    - run: python3 -c 'import sys; sys.exit(sys.version_info < (3, 9))'
+        || pipenv run pylint --load-plugins=pylint_import_requirements "$(cat *.egg-info/top_level.txt)"
     # https://github.com/PyCQA/pylint/issues/352
     # disable parse-error due to:
     # > tests/resources/__init__.py:1:0: F0010: error while code parsing: Unable to load file tests/resources/__init__.py:
