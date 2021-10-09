@@ -103,13 +103,9 @@ class CorticalParcellationStats:
     _COLUMN_NAMES_NON_SAFE_REGEX = re.compile(r"\s+")
 
     def __init__(self):
-        self.headers = (
-            {}
-        )  # type: typing.Dict[str, typing.Union[str, datetime.datetime]]
-        self.whole_brain_measurements = (
-            {}
-        )  # type: typing.Dict[str, typing.Tuple[float, int]]
-        self.structural_measurements = {}  # type: typing.Union[pandas.DataFrame, None]
+        self.headers: typing.Dict[str, typing.Union[str, datetime.datetime]] = {}
+        self.whole_brain_measurements: typing.Dict[str, typing.Tuple[float, int]] = {}
+        self.structural_measurements: typing.Union[pandas.DataFrame, None] = {}
 
     @property
     def hemisphere(self) -> str:
@@ -174,7 +170,7 @@ class CorticalParcellationStats:
     ) -> typing.Tuple[str, numpy.ndarray]:
         match = cls._GENERAL_MEASUREMENTS_REGEX.match(line)
         if not match:
-            raise ValueError("unexpected line: {!r}".format(line))
+            raise ValueError(f"unexpected line: {line!r}")
         key, name, value, unit = match.groups()
         if (
             key == "SupraTentorialVolNotVent"
@@ -190,7 +186,7 @@ class CorticalParcellationStats:
     ) -> typing.List[typing.Dict[str, str]]:
         columns = []
         for column_index in range(1, int(num) + 1):
-            column_attrs = {}  # type: typing.Dict[str, str]
+            column_attrs: typing.Dict[str, str] = {}
             for _ in range(3):
                 column_index_line, key, value = cls._read_column_header_line(stream)
                 assert column_index_line == column_index
@@ -244,7 +240,7 @@ class CorticalParcellationStats:
             elif hasattr(path_or_buffer, "readline"):
                 stats._read(io.TextIOWrapper(path_or_buffer))
             else:
-                with open(path_or_buffer, "r") as stream:
+                with open(path_or_buffer, "r", encoding="utf8") as stream:
                     stats._read(stream)
         finally:
             if should_close:

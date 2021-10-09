@@ -29,6 +29,7 @@ setuptools.setup(
         # `version` triggers pylint C0103
         "write_to_template": "__version__ = '{version}'\n",
     },
+    packages=setuptools.find_packages(),
     description="Python Library to Read FreeSurfer's cortical parcellation anatomical statistics",
     long_description=LONG_DESCRIPTION,
     author="Fabian Peter Hammerle",
@@ -57,7 +58,7 @@ setuptools.setup(
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-        "Programming Language :: Python :: 3.5",
+        # .github/workflows/python.yml
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
@@ -66,7 +67,8 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
         "Topic :: Utilities",
     ],
-    packages=setuptools.find_packages(),
+    # f-strings & variable type hints
+    python_requires=">=3.6",
     install_requires=[
         "numpy<2",
         # still hoping that pandas will stick to semantic versioning in the future

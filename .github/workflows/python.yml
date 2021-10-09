@@ -14,14 +14,13 @@ on:
 
 jobs:
   code-format:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version:
-        - 3.8
+        python-verison: ['3.9']
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
+    - uses: actions/checkout@v2.3.4
+    - uses: actions/setup-python@v2.2.2
       with:
         python-version: ${{ matrix.python-version }}
     - run: pip install --upgrade pipenv==2020.8.13
@@ -31,15 +30,14 @@ jobs:
     - run: pipenv graph
     - run: pipenv run black --check .
   tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version:
-        - 3.5
-        - 3.6
-        - 3.7
-        - 3.8
-        - 3.9
+        - '3.6'
+        - '3.7'
+        - '3.8'
+        - '3.9'
         pandas-version:
         - '' # locked version
         - 0.21.*
@@ -50,46 +48,43 @@ jobs:
         - 1.1.* # pandas.io.common.get_handle does not yet support urls
         - 1.*
         exclude:
-          # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683777317#L208
-          # https://github.com/pandas-dev/pandas/commit/18efcb27361478daa3118079ecb166c733691ecb#diff-2eeaed663bd0d25b7e608891384b7298R814
-        - python-version: 3.5
-          pandas-version: 1.1.*
-        - python-version: 3.5
-          pandas-version: 1.*
-        - python-version: 3.7
+        - python-version: '3.7'
           pandas-version: 0.21.*
-        - python-version: 3.7
+        - python-version: '3.7'
           pandas-version: 0.22.*
         # > /tmp/pip-install-g4jx0np4/numpy/_configtest.c:6: undefined reference to `exp'
         # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704331#L437
-        - python-version: 3.8
+        - python-version: '3.8'
           pandas-version: 0.21.*
         # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704330#L437
-        - python-version: 3.8
+        - python-version: '3.8'
           pandas-version: 0.22.*
         # no python-version3.8 wheels for pandas v0.24.2 & v0.23.4 available
         # https://travis-ci.org/github/fphammerle/freesurfer-stats/builds/701952350
         # build takes longer than 10min
         # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/702077404#L199
-        - python-version: 3.8
+        - python-version: '3.8'
           pandas-version: 0.23.*
-        - python-version: 3.8
+        - python-version: '3.8'
           pandas-version: 0.24.*
-        - python-version: 3.9
+        - python-version: '3.9'
           pandas-version: 0.21.*
-        - python-version: 3.9
+        - python-version: '3.9'
           pandas-version: 0.22.*
-        - python-version: 3.9
+        - python-version: '3.9'
           pandas-version: 0.23.*
-        - python-version: 3.9
+        - python-version: '3.9'
           pandas-version: 0.24.*
+        - python-version: '3.9'
+          pandas-version: 0.25.* # no wheel available
       fail-fast: false
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
+    - uses: actions/checkout@v2.3.4
+    - uses: actions/setup-python@v2.2.2
       with:
         python-version: ${{ matrix.python-version }}
     - run: pip install --upgrade pipenv==2020.8.13
+    # by default pipenv picks the latest version in PATH
     - run: pipenv install --python "$PYTHON_VERSION" --deploy --dev
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
@@ -99,9 +94,7 @@ jobs:
         PANDAS_VERSION: ${{ matrix.pandas-version }}
     - run: pipenv graph
     - run: pipenv run pytest --cov="$(cat *.egg-info/top_level.txt)" --cov-report=term-missing --cov-fail-under=100
-    # https://github.com/PyCQA/pylint/issues/3882
-    - run: python3 -c 'import sys; sys.exit(sys.version_info < (3, 9))'
-        || pipenv run pylint --load-plugins=pylint_import_requirements "$(cat *.egg-info/top_level.txt)"
+    - run: pipenv run pylint --load-plugins=pylint_import_requirements "$(cat *.egg-info/top_level.txt)"
     # https://github.com/PyCQA/pylint/issues/352
     # disable parse-error due to:
     # > tests/resources/__init__.py:1:0: F0010: error while code parsing: Unable to load file tests/resources/__init__.py:
