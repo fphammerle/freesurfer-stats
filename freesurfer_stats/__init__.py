@@ -208,7 +208,7 @@ class CorticalParcellationStats:
             else:
                 column_name, value = self._parse_whole_brain_measurements_line(line)
                 assert column_name not in self.whole_brain_measurements, column_name
-                self.whole_brain_measurements[column_name] = value
+                self.whole_brain_measurements[column_name] = value  # type: ignore
             line = self._read_header_line(stream)
         columns = self._read_column_attributes(int(line[len("NTableCols ") :]), stream)
         assert self._read_header_line(stream) == "ColHeaders " + " ".join(
