@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Removed
-- compatibility with `python3.5`
+- compatibility with `python3.5` & `python3.6`
+- compatibility with `pandas<0.23`
 
 ## [1.2.1] - 2020-12-31
 ### Fixed

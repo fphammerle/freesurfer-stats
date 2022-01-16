@@ -59,7 +59,6 @@ setuptools.setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         # .github/workflows/python.yml
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -67,12 +66,14 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
         "Topic :: Utilities",
     ],
-    # f-strings & variable type hints
-    python_requires=">=3.6",
+    # >=3.6 f-strings & variable type hints
+    # >=3.7 postponed evaluation of type annotations (PEP563)
+    python_requires=">=3.7",
     install_requires=[
         "numpy<2",
         # still hoping that pandas will stick to semantic versioning in the future
-        "pandas>=0.21,<2",
+        # <0.23 untested
+        "pandas>=0.23,<2",
     ],
     setup_requires=["setuptools_scm"],
     tests_require=["pytest<5"],

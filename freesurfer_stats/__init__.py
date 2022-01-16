@@ -46,6 +46,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from __future__ import annotations
+
 import datetime
 import io
 import pathlib
@@ -81,16 +83,7 @@ def _get_filepath_or_buffer(
     # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/parsers.py#L436
     # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/_typing.py#L30
     # pylint: disable=no-member; for python>=v1.2.0
-    (path_or_buffer, _, _, *instructions) = pandas.io.common.get_filepath_or_buffer(
-        path
-    )
-    if instructions:
-        # https://github.com/pandas-dev/pandas/blob/v0.25.3/pandas/io/common.py#L171
-        assert len(instructions) == 1, instructions
-        should_close = instructions[0]
-    else:
-        # https://github.com/pandas-dev/pandas/blob/v0.21.0/pandas/io/common.py#L171
-        should_close = hasattr(path_or_buffer, "close")
+    (path_or_buffer, _, _, should_close) = pandas.io.common.get_filepath_or_buffer(path)
     return path_or_buffer, should_close
 
 
@@ -229,7 +222,7 @@ class CorticalParcellationStats:
         ).apply(pandas.to_numeric, errors="ignore")
 
     @classmethod
-    def read(cls, path: typing.Union[str, pathlib.Path]) -> "CorticalParcellationStats":
+    def read(cls, path: typing.Union[str, pathlib.Path]) -> CorticalParcellationStats:
         path_or_buffer, should_close = _get_filepath_or_buffer(path)
         stats = cls()
         try:  # pragma: no cover

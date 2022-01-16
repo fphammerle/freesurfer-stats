@@ -34,31 +34,17 @@ jobs:
     strategy:
       matrix:
         python-version:
-        - '3.6'
         - '3.7'
         - '3.8'
         - '3.9'
         pandas-version:
         - '' # locked version
-        - 0.21.*
-        - 0.22.*
         - 0.23.*
         - 0.24.*
         - 0.25.*
         - 1.1.* # pandas.io.common.get_handle does not yet support urls
         - 1.*
         exclude:
-        - python-version: '3.7'
-          pandas-version: 0.21.*
-        - python-version: '3.7'
-          pandas-version: 0.22.*
-        # > /tmp/pip-install-g4jx0np4/numpy/_configtest.c:6: undefined reference to `exp'
-        # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704331#L437
-        - python-version: '3.8'
-          pandas-version: 0.21.*
-        # https://travis-ci.org/github/fphammerle/freesurfer-stats/jobs/683704330#L437
-        - python-version: '3.8'
-          pandas-version: 0.22.*
         # no python-version3.8 wheels for pandas v0.24.2 & v0.23.4 available
         # https://travis-ci.org/github/fphammerle/freesurfer-stats/builds/701952350
         # build takes longer than 10min
@@ -67,10 +53,6 @@ jobs:
           pandas-version: 0.23.*
         - python-version: '3.8'
           pandas-version: 0.24.*
-        - python-version: '3.9'
-          pandas-version: 0.21.*
-        - python-version: '3.9'
-          pandas-version: 0.22.*
         - python-version: '3.9'
           pandas-version: 0.23.*
         - python-version: '3.9'
