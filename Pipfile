@@ -18,6 +18,9 @@ pylint-import-requirements = "*"
 pytest = "*"
 pytest-cov = "*"
 
+# mypy on python<3.8
+typed-ast = {markers = "python_version < '3.8'"}
+
 [requires]
 python_version = "3"
 
