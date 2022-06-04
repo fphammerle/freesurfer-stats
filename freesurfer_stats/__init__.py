@@ -129,7 +129,7 @@ class CorticalParcellationStats:
             if line:
                 attr_name, attr_value_str = line.split(" ", maxsplit=1)
                 attr_value_str = attr_value_str.lstrip()
-                if attr_name in ["cvs_version", "mrisurf.c-cvs_version"]:
+                if attr_name in {"cvs_version", "mrisurf.c-cvs_version"}:
                     attr_value = typing.cast(
                         typing.Union[str, datetime.datetime],
                         attr_value_str.strip("$").rstrip(),
