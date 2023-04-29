@@ -5,8 +5,8 @@ freesurfer-stats
    :target: https://github.com/psf/black
 .. image:: https://github.com/fphammerle/freesurfer-stats/workflows/tests/badge.svg
    :target: https://github.com/fphammerle/freesurfer-stats/actions
-.. image:: https://coveralls.io/repos/github/fphammerle/freesurfer-stats/badge.svg?branch=master
-   :target: https://coveralls.io/github/fphammerle/freesurfer-stats?branch=master
+.. image:: https://ipfs.io/ipfs/QmP8k5H4MkfspFxQxdL2kEZ4QQWQjF8xwPYD35KvNH4CA6/20230429T090002+0200/s3.amazonaws.com/assets.coveralls.io/badges/coveralls_100.svg
+   :target: https://github.com/fphammerle/freesurfer-stats/actions
 .. image:: https://img.shields.io/pypi/v/freesurfer-stats.svg
    :target: https://pypi.org/project/freesurfer-stats/#history
 .. image:: https://img.shields.io/pypi/pyversions/freesurfer-stats.svg
